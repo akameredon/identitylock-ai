@@ -59,7 +59,11 @@ faq:{eyebrow:'GOOD TO KNOW',title:'Frequently asked questions',items_json:JSON.s
 };
 let homeRenderToken=0;
 function renderHomeFields(data){
- homeDraft=structuredClone(data||homeDefaults);
+ homeDraft=structuredClone(homeDefaults);
+ for(const [group,value] of Object.entries(data||{})){
+  if(value&&typeof value==='object'&&!Array.isArray(value))homeDraft[group]={...(homeDraft[group]||{}),...value};
+  else homeDraft[group]=value;
+ }
  const root=$('homeFields'),token=++homeRenderToken;
  if(root.dataset.bound!=='true'){
   root.addEventListener('input',event=>{
