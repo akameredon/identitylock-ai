@@ -56,7 +56,33 @@ honest:{eyebrow:'A NOTE ON REALISTIC RESULTS',title:'Better direction. Not a mag
 buy:{eyebrow:'ONE PURCHASE. YOUR COMPLETE BUNDLE.',title:'Make the change you asked for.',bundle_title:'IDENTITYLOCK AI COMPLETE BUNDLE',features:'10 reusable transformation prompts\nCustomer quick-start guide\nTechnical editing workflow\nIdentity preservation QA checklist\nTroubleshooting guide\nInstant access after verified payment'},
 faq:{eyebrow:'GOOD TO KNOW',title:'Frequently asked questions',items_json:JSON.stringify([{q:'Will this guarantee my face never changes?',a:'No. No text prompt can guarantee pixel-perfect identity preservation across all generative tools. The bundle prioritizes preservation and explains techniques that can reduce unwanted changes.'},{q:'Which AI tools can I use?',a:'The prompts are designed to be adapted to image-editing tools that accept reference images. Features such as masking and localized inpainting depend on the platform.'},{q:'Do I need design experience?',a:'No. The customer guide walks you through uploading a reference, describing the edit and checking the result.'},{q:'How do I receive the files?',a:'After successful payment verification, you\'ll receive access to the digital bundle through the secure delivery flow.'},{q:'Is this a subscription?',a:'No. The listed price is a one-time payment for the current bundle.'}])}
 };
-function renderHomeFields(data){homeDraft=structuredClone(data||homeDefaults);const root=$('homeFields');root.innerHTML=HOME_FIELDS.map(([key,title,...items])=>'<section class="home-group"><h3>'+esc(title)+'</h3><div class="home-grid">'+items.map(([field,label])=>'<label>'+esc(label)+(field==='items_json'?'<textarea rows="10" data-home-field="'+key+'.'+field+'"></textarea>':(field==='items'||field==='features'?'<textarea rows="7" data-home-field="'+key+'.'+field+'"></textarea>':'<textarea rows="'+(['body','intro'].includes(field)?3:2)+'" data-home-field="'+key+'.'+field+'"></textarea>'))+'</label>').join('')+'</div></section>').join('');root.querySelectorAll('[data-home-field]').forEach(el=>{const [group,key]=el.dataset.homeField.split('.');el.value=homeDraft[group]?.[key]??''})}
+let homeRenderToken=0;
+function renderHomeFields(data){
+ homeDraft=structuredClone(data||homeDefaults);
+ const root=$('homeFields'),token=++homeRenderToken;
+ root.replaceChildren();
+ let index=0;
+ const renderNextGroup=()=>{
+  if(token!==homeRenderToken)return;
+  const [key,title,...items]=HOME_FIELDS[index++];
+  if(!key){return}
+  const section=document.createElement('section');
+  section.className='home-group';
+  const heading=document.createElement('h3');heading.textContent=title;
+  const grid=document.createElement('div');grid.className='home-grid';
+  for(const [field,label] of items){
+   const wrapper=document.createElement('label');wrapper.append(document.createTextNode(label));
+   const textarea=document.createElement('textarea');
+   textarea.rows=field==='items_json'?10:(field==='items'||field==='features'?7:(['body','intro'].includes(field)?3:2));
+   textarea.dataset.homeField=key+'.'+field;
+   textarea.value=homeDraft[key]?.[field]??'';
+   wrapper.append(textarea);grid.append(wrapper);
+  }
+  section.append(heading,grid);root.append(section);
+  if(index<HOME_FIELDS.length)requestAnimationFrame(renderNextGroup);
+ };
+ if(HOME_FIELDS.length)requestAnimationFrame(renderNextGroup);
+}
 function collectHomeFields(){const next=structuredClone(homeDraft);$('homeFields').querySelectorAll('[data-home-field]').forEach(el=>{const [group,key]=el.dataset.homeField.split('.');next[group]??={};next[group][key]=el.value.trim()});try{JSON.parse(next.faq.items_json)}catch(e){throw new Error('FAQ editor must contain valid JSON. Keep each question and answer in q/a fields.')};return next}
 async function loadHomepage(){const {data:draft,error:draftError}=await db.from('site_settings').select('value').eq('key','homepage_draft').maybeSingle();if(draftError){msg('homeMsg','Could not load homepage draft: '+draftError.message);return}if(draft?.value){renderHomeFields(draft.value);msg('homeMsg','Unpublished draft loaded. Publish it to update the public homepage.');return}const {data:live,error:liveError}=await db.from('site_settings').select('value').eq('key','homepage_content').maybeSingle();if(liveError){msg('homeMsg','Could not load published homepage: '+liveError.message);renderHomeFields(homeDefaults);return}renderHomeFields(live?.value||homeDefaults);msg('homeMsg',live?.value?'Published homepage content loaded.':'Default homepage content loaded. Save a draft to prepare your first update.')}
 async function saveHomepage(publish){let value;try{value=collectHomeFields()}catch(e){msg('homeMsg',e.message);return}const rows=publish?[{key:'homepage_content',value,is_public:true,updated_by:user.id},{key:'homepage_draft',value,is_public:false,updated_by:user.id}]:[{key:'homepage_draft',value,is_public:false,updated_by:user.id}];const {data,error}=await db.from('site_settings').upsert(rows,{onConflict:'key'}).select('key');if(error){msg('homeMsg','Save failed: '+error.message);return}const saved=new Set((data||[]).map(row=>row.key));if(!saved.has('homepage_draft')||(publish&&!saved.has('homepage_content'))){msg('homeMsg','Save could not be verified. Refresh the manager and check Supabase permissions.');return}try{await audit(publish?'publish':'save','homepage','homepage_content',{status:publish?'published':'draft'})}catch(auditError){console.warn('Homepage saved, but audit entry failed.',auditError)}msg('homeMsg',publish?'Published and verified. The public homepage now has this content. Refresh the public website to view it.':'Draft saved privately. Use Preview homepage to review it before publishing.')}
