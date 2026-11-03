@@ -80,7 +80,7 @@ async function loadMedia(){
  ]);
  if(error){msg('mediaMsg','Could not load Storage: '+error.message);return}
  if(catalogError){msg('mediaMsg','Storage loaded, but media catalogue could not load: '+catalogError.message);return}
- mediaFiles=(data||[]).filter(f=>f.name&&!f.name.endsWith('/'));mediaCatalog=catalog||[];renderMedia();
+ mediaCatalog=catalog||[];const allFiles=new Map();for(const item of mediaCatalog)allFiles.set(item.storage_path,{name:item.storage_path,metadata:{mimetype:item.mime_type,size:item.size_bytes}});for(const item of (data||[]))if(item.name&&!item.name.endsWith('/'))allFiles.set(item.name,{...item,name:item.name});mediaFiles=Array.from(allFiles.values());renderMedia();if(typeof renderProjects==='function')renderProjects();
  msg('mediaMsg',mediaFiles.length+' files · '+mediaCatalog.length+' catalogued images.');
 }
 async function storeMediaFile(file){
