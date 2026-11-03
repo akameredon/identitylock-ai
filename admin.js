@@ -60,14 +60,22 @@ let homeRenderToken=0;
 function renderHomeFields(data){
  homeDraft=structuredClone(data||homeDefaults);
  const root=$('homeFields'),token=++homeRenderToken;
+ if(root.dataset.bound!=='true'){
+  root.addEventListener('input',event=>{
+   const field=event.target.closest('[data-home-field]');
+   if(!field)return;
+   const [group,key]=field.dataset.homeField.split('.');
+   homeDraft[group]??={};homeDraft[group][key]=field.value;
+  });
+  root.dataset.bound='true';
+ }
  root.replaceChildren();
  let index=0;
  const renderNextGroup=()=>{
   if(token!==homeRenderToken)return;
   const [key,title,...items]=HOME_FIELDS[index++];
-  if(!key){return}
-  const section=document.createElement('section');
-  section.className='home-group';
+  if(!key)return;
+  const section=document.createElement('section');section.className='home-group';
   const heading=document.createElement('h3');heading.textContent=title;
   const grid=document.createElement('div');grid.className='home-grid';
   for(const [field,label] of items){
@@ -83,7 +91,11 @@ function renderHomeFields(data){
  };
  if(HOME_FIELDS.length)requestAnimationFrame(renderNextGroup);
 }
-function collectHomeFields(){const next=structuredClone(homeDraft);$('homeFields').querySelectorAll('[data-home-field]').forEach(el=>{const [group,key]=el.dataset.homeField.split('.');next[group]??={};next[group][key]=el.value.trim()});try{JSON.parse(next.faq.items_json)}catch(e){throw new Error('FAQ editor must contain valid JSON. Keep each question and answer in q/a fields.')};return next}
+function collectHomeFields(){
+ const next=structuredClone(homeDraft);
+ try{JSON.parse(next.faq.items_json)}catch(e){throw new Error('FAQ editor must contain valid JSON. Keep each question and answer in q/a fields.')}
+ return next;
+}
 async function loadHomepage(){const {data:draft,error:draftError}=await db.from('site_settings').select('value').eq('key','homepage_draft').maybeSingle();if(draftError){msg('homeMsg','Could not load homepage draft: '+draftError.message);return}if(draft?.value){renderHomeFields(draft.value);msg('homeMsg','Unpublished draft loaded. Publish it to update the public homepage.');return}const {data:live,error:liveError}=await db.from('site_settings').select('value').eq('key','homepage_content').maybeSingle();if(liveError){msg('homeMsg','Could not load published homepage: '+liveError.message);renderHomeFields(homeDefaults);return}renderHomeFields(live?.value||homeDefaults);msg('homeMsg',live?.value?'Published homepage content loaded.':'Default homepage content loaded. Save a draft to prepare your first update.')}
 async function saveHomepage(publish){let value;try{value=collectHomeFields()}catch(e){msg('homeMsg',e.message);return}const rows=publish?[{key:'homepage_content',value,is_public:true,updated_by:user.id},{key:'homepage_draft',value,is_public:false,updated_by:user.id}]:[{key:'homepage_draft',value,is_public:false,updated_by:user.id}];const {data,error}=await db.from('site_settings').upsert(rows,{onConflict:'key'}).select('key');if(error){msg('homeMsg','Save failed: '+error.message);return}const saved=new Set((data||[]).map(row=>row.key));if(!saved.has('homepage_draft')||(publish&&!saved.has('homepage_content'))){msg('homeMsg','Save could not be verified. Refresh the manager and check Supabase permissions.');return}try{await audit(publish?'publish':'save','homepage','homepage_content',{status:publish?'published':'draft'})}catch(auditError){console.warn('Homepage saved, but audit entry failed.',auditError)}msg('homeMsg',publish?'Published and verified. The public homepage now has this content. Refresh the public website to view it.':'Draft saved privately. Use Preview homepage to review it before publishing.')}
 $('homeReload').onclick=loadHomepage;$('homePreview').onclick=()=>window.open('/?preview=homepage','_blank','noopener');$('homeSave').onclick=()=>saveHomepage(false);$('homePublish').onclick=()=>saveHomepage(true);
