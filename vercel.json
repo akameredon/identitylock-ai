@@ -1,1 +1,7 @@
-{"functions":{"api/*.js":{"includeFiles":"private-assets/**"}},"headers":[{"source":"/private-assets/(.*)","headers":[{"key":"X-Robots-Tag","value":"noindex, nofollow"},{"key":"Cache-Control","value":"private, no-store"}]}]}
+{
+  "functions": {
+    "api/download.js": {
+      "includeFiles": ".private-assets/**"
+    }
+  }
+}
