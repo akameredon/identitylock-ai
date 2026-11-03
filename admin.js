@@ -44,55 +44,113 @@ if(db){
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){user=null;$('app').classList.add('hidden');$('login').classList.remove('hidden')}});
   db.auth.getSession().then(({data,error})=>{if(error)msg('loginMsg','Session check failed: '+error.message);return auth(data?.session||null)}).catch(error=>msg('loginMsg','Session check failed: '+(error?.message||'Please refresh.')));
 }
-async function audit(action,type,id,details={}){await db.from('admin_audit_log').insert({actor_id:user.id,action,entity_type:type,entity_id:String(id||''),details})}async function load(){await Promise.all([loadPages(),loadMedia(),loadSettings(),loadLogs(),loadHomepage()])}async function loadPages(){let {data,error}=await db.from('site_pages').select('*').order('updated_at',{ascending:false});if(error){msg('pageMsg',error.message);return}pages=data||[];$('count').textContent=pages.length;$('published').textContent=pages.filter(x=>x.status==='published').length;$('drafts').textContent=pages.filter(x=>x.status==='draft').length;$('list').innerHTML=pages.map(x=>`<button class="page ${chosen?.id===x.id?'active':''}" data-id="${x.id}"><b>${esc(x.title)}</b><small>/${esc(x.slug)} · ${x.status}</small></button>`).join('')||'<p>No pages yet.</p>';$('recent').innerHTML=pages.slice(0,6).map(x=>`<p>${esc(x.title)} — ${x.status}</p>`).join('')||'<p>No pages yet.</p>';document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>choose(b.dataset.id))}function choose(id){chosen=pages.find(x=>x.id===id);$('form').classList.remove('hidden');$('editTitle').textContent='Edit page';$('title').value=chosen.title;$('slug').value=chosen.slug;$('seo').value=chosen.seo?.description||'';$('body').innerHTML=DOMPurify.sanitize(chosen.content?.html||'');$('status').value=chosen.status;document.querySelectorAll('.page').forEach(b=>b.classList.toggle('active',b.dataset.id===id))}function fresh(){chosen=null;$('form').classList.remove('hidden');$('editTitle').textContent='New page';['title','slug','seo'].forEach(id=>$(id).value='');$('body').innerHTML='';$('status').value='draft';document.querySelectorAll('.page').forEach(b=>b.classList.remove('active'))}$('new').onclick=$('newTop').onclick=fresh;document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{let c=b.dataset.cmd;if(c==='createLink'){let u=prompt('HTTPS link URL');if(u&&/^https:\/\//i.test(u))document.execCommand(c,false,u)}else document.execCommand(c,false,b.dataset.value||null)});async function save(status){let title=$('title').value.trim(),slug=$('slug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'');if(!title||!slug){msg('pageMsg','Title and URL slug are required.');return}let payload={title,slug,status,content:{html:DOMPurify.sanitize($('body').innerHTML,{USE_PROFILES:{html:true}})},seo:{description:$('seo').value.trim()},updated_by:user.id};let q=chosen?db.from('site_pages').update(payload).eq('id',chosen.id).select().single():db.from('site_pages').insert(payload).select().single();let {data,error}=await q;if(error){msg('pageMsg',error.message);return}chosen=data;await audit(status==='published'?'publish':'save','page',data.id,{title,slug,status});msg('pageMsg',status==='published'?'Page published.':'Draft saved.');await loadPages();choose(data.id)}$('save').onclick=()=>save('draft');$('publish').onclick=()=>save('published');let mediaFiles=[];
-const MEDIA_MAX_BYTES=20*1024*1024;
+async function audit(action,type,id,details={}){await db.from('admin_audit_log').insert({actor_id:user.id,action,entity_type:type,entity_id:String(id||''),details})}async function load(){await Promise.all([loadPages(),loadMedia(),loadProjects(),loadSettings(),loadLogs(),loadHomepage()])}async function loadPages(){let {data,error}=await db.from('site_pages').select('*').order('updated_at',{ascending:false});if(error){msg('pageMsg',error.message);return}pages=data||[];$('count').textContent=pages.length;$('published').textContent=pages.filter(x=>x.status==='published').length;$('drafts').textContent=pages.filter(x=>x.status==='draft').length;$('list').innerHTML=pages.map(x=>`<button class="page ${chosen?.id===x.id?'active':''}" data-id="${x.id}"><b>${esc(x.title)}</b><small>/${esc(x.slug)} · ${x.status}</small></button>`).join('')||'<p>No pages yet.</p>';$('recent').innerHTML=pages.slice(0,6).map(x=>`<p>${esc(x.title)} — ${x.status}</p>`).join('')||'<p>No pages yet.</p>';document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>choose(b.dataset.id))}function choose(id){chosen=pages.find(x=>x.id===id);$('form').classList.remove('hidden');$('editTitle').textContent='Edit page';$('title').value=chosen.title;$('slug').value=chosen.slug;$('seo').value=chosen.seo?.description||'';$('body').innerHTML=DOMPurify.sanitize(chosen.content?.html||'');$('status').value=chosen.status;document.querySelectorAll('.page').forEach(b=>b.classList.toggle('active',b.dataset.id===id))}function fresh(){chosen=null;$('form').classList.remove('hidden');$('editTitle').textContent='New page';['title','slug','seo'].forEach(id=>$(id).value='');$('body').innerHTML='';$('status').value='draft';document.querySelectorAll('.page').forEach(b=>b.classList.remove('active'))}$('new').onclick=$('newTop').onclick=fresh;document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{let c=b.dataset.cmd;if(c==='createLink'){let u=prompt('HTTPS link URL');if(u&&/^https:\/\//i.test(u))document.execCommand(c,false,u)}else document.execCommand(c,false,b.dataset.value||null)});async function save(status){let title=$('title').value.trim(),slug=$('slug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'');if(!title||!slug){msg('pageMsg','Title and URL slug are required.');return}let payload={title,slug,status,content:{html:DOMPurify.sanitize($('body').innerHTML,{USE_PROFILES:{html:true}})},seo:{description:$('seo').value.trim()},updated_by:user.id};let q=chosen?db.from('site_pages').update(payload).eq('id',chosen.id).select().single():db.from('site_pages').insert(payload).select().single();let {data,error}=await q;if(error){msg('pageMsg',error.message);return}chosen=data;await audit(status==='published'?'publish':'save','page',data.id,{title,slug,status});msg('pageMsg',status==='published'?'Page published.':'Draft saved.');await loadPages();choose(data.id)}$('save').onclick=()=>save('draft');$('publish').onclick=()=>save('published');let mediaFiles=[],mediaCatalog=[],mediaProjects=[],activeProjectId='',editingProjectId='';
+const MEDIA_MAX_BYTES=20*1024*1024,MEDIA_BUCKET='identitylock-media';
 const MEDIA_TYPES=['image/jpeg','image/png','image/webp','image/gif'];
+const sha256=async file=>{const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,'0')).join('')};
+const mediaUrl=path=>db.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+const catalogByPath=path=>mediaCatalog.find(x=>x.storage_path===path);
 function renderMedia(){
- const query=($('mediaSearch')?.value||'').trim().toLowerCase();
- const type=$('mediaType')?.value||'all';
- const filtered=mediaFiles.filter(f=>(!query||f.name.toLowerCase().includes(query))&&(type==='all'||f.metadata?.mimetype===type));
+ const query=($('mediaSearch')?.value||'').trim().toLowerCase(),type=$('mediaType')?.value||'all';
+ const filtered=mediaFiles.filter(f=>{const c=catalogByPath(f.name),mime=c?.mime_type||f.metadata?.mimetype||'';const hay=[f.name,c?.category,...(c?.tags||[])].join(' ').toLowerCase();return(!query||hay.includes(query))&&(type==='all'||mime===type)});
  $('mediaCount').textContent=mediaFiles.length;
- $('gallery').innerHTML=filtered.map(f=>{
-  const url=db.storage.from('identitylock-media').getPublicUrl(f.name).data.publicUrl;
-  const mime=f.metadata?.mimetype||'image/*';
-  const size=Number(f.metadata?.size||0);
-  return `<article class="media-card"><a class="media-preview" href="${esc(url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(url)}" alt="${esc(f.name)}"></a><div class="media-card-info"><b title="${esc(f.name)}">${esc(f.name)}</b><small>${esc(mime.replace('image/','').toUpperCase())} · ${size?((size/1048576).toFixed(2)+' MB'):'Size unavailable'}</small><button type="button" class="copy-media-url" data-url="${esc(url)}">Copy image URL</button></div></article>`;
+ $('gallery').innerHTML=filtered.map(f=>{const c=catalogByPath(f.name),url=mediaUrl(f.name),mime=c?.mime_type||f.metadata?.mimetype||'image/*',size=Number(c?.size_bytes||f.metadata?.size||0);
+ const category=c?.category||'general',tags=(c?.tags||[]).join(', ');
+ return `<article class="media-card"><a class="media-preview" href="${esc(url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(url)}" alt="${esc(c?.alt_text||f.name)}"></a><div class="media-card-info"><b title="${esc(f.name)}">${esc(c?.file_name||f.name)}</b><small>${esc(mime.replace('image/','').toUpperCase())} · ${size?(size/1048576).toFixed(2)+' MB':'Size unavailable'}</small>
+ <label>Category<input class="media-category" data-path="${esc(f.name)}" value="${esc(category)}" maxlength="60"></label><label>Tags (comma-separated)<input class="media-tags" data-path="${esc(f.name)}" value="${esc(tags)}" placeholder="portrait, retouch"></label><label>Alt text<input class="media-alt" data-path="${esc(f.name)}" value="${esc(c?.alt_text||'')}" maxlength="240"></label>
+ <div class="media-card-actions"><button type="button" class="save-media-meta" data-path="${esc(f.name)}">Save details</button><button type="button" class="copy-media-url secondary" data-url="${esc(url)}">Copy URL</button></div></div></article>`;
  }).join('')||'<p class="muted">No matching images. Try another search or upload files.</p>';
- document.querySelectorAll('.copy-media-url').forEach(button=>button.onclick=async()=>{
-  try{await navigator.clipboard.writeText(button.dataset.url);button.textContent='Copied';setTimeout(()=>button.textContent='Copy image URL',1500)}
-  catch(error){msg('mediaMsg','Clipboard access is unavailable in this browser. Open the image and copy its address.')}
- });
+ document.querySelectorAll('.save-media-meta').forEach(b=>b.onclick=()=>saveMediaMeta(b.dataset.path));
+ document.querySelectorAll('.copy-media-url').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.url);b.textContent='Copied'}catch(e){msg('mediaMsg','Clipboard unavailable. Open the image and copy its address.')}});
+}
+async function saveMediaMeta(path){
+ const card=document.querySelector('.save-media-meta[data-path="'+CSS.escape(path)+'"]')?.closest('.media-card');if(!card)return;
+ const file=mediaFiles.find(x=>x.name===path),old=catalogByPath(path);if(!file)return;
+ const category=card.querySelector('.media-category').value.trim()||'general',tags=card.querySelector('.media-tags').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,30),alt_text=card.querySelector('.media-alt').value.trim();
+ const row={storage_path:path,file_name:old?.file_name||path,mime_type:old?.mime_type||file.metadata?.mimetype||'image/jpeg',size_bytes:Number(old?.size_bytes||file.metadata?.size||1),category,tags,alt_text,metadata:old?.metadata||{},uploaded_by:old?.uploaded_by||user.id};
+ const {data,error}=await db.from('identitylock_media_items').upsert(row,{onConflict:'storage_path'}).select().single();
+ if(error){msg('mediaMsg','Could not save image details: '+error.message);return}
+ mediaCatalog=mediaCatalog.filter(x=>x.storage_path!==path);mediaCatalog.push(data);msg('mediaMsg','Image details saved.');renderMedia();await audit('update','media',path,{category,tags});
 }
 async function loadMedia(){
  msg('mediaMsg','Loading media library…');
- const {data,error}=await db.storage.from('identitylock-media').list('',{limit:1000,sortBy:{column:'created_at',order:'desc'}});
- if(error){msg('mediaMsg','Could not load the media bucket: '+error.message);return}
- mediaFiles=(data||[]).filter(f=>f.name&&!f.name.endsWith('/'));
- renderMedia();msg('mediaMsg',mediaFiles.length+' image files found in the existing media bucket.');
+ const [{data,error},{data:catalog,error:catalogError}]=await Promise.all([
+ db.storage.from(MEDIA_BUCKET).list('',{limit:1000,sortBy:{column:'created_at',order:'desc'}}),
+ db.from('identitylock_media_items').select('*').order('created_at',{ascending:false})
+ ]);
+ if(error){msg('mediaMsg','Could not load Storage: '+error.message);return}
+ if(catalogError){msg('mediaMsg','Storage loaded, but media catalogue could not load: '+catalogError.message);return}
+ mediaFiles=(data||[]).filter(f=>f.name&&!f.name.endsWith('/'));mediaCatalog=catalog||[];renderMedia();
+ msg('mediaMsg',mediaFiles.length+' files · '+mediaCatalog.length+' catalogued images.');
 }
+async function storeMediaFile(file){
+ if(!MEDIA_TYPES.includes(file.type)){throw new Error('Unsupported image format. Use JPG, PNG, WebP or GIF.')}
+ if(file.size<=0||file.size>MEDIA_MAX_BYTES)throw new Error('Image must be larger than zero and no more than 20 MB.');
+ const hash=await sha256(file),duplicate=mediaCatalog.find(x=>x.content_hash===hash);
+ if(duplicate){const reuse=confirm('Exact duplicate detected: "'+duplicate.file_name+'". Reuse the existing library image instead of uploading another copy?');if(reuse)return {reused:true,item:duplicate};}
+ const safeName=file.name.normalize('NFKD').replace(/[^\w.-]/g,'-').replace(/-+/g,'-').slice(-120)||'image';
+ const path=Date.now()+'-'+crypto.randomUUID()+'-'+safeName;
+ const {error}=await db.storage.from(MEDIA_BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:'31536000'});
+ if(error)throw new Error(error.message);
+ const row={storage_path:path,file_name:file.name,mime_type:file.type,size_bytes:file.size,content_hash:hash,category:'general',tags:[],alt_text:'',uploaded_by:user.id,metadata:{source:'admin_upload'}};
+ const {data,error:catalogError}=await db.from('identitylock_media_items').insert(row).select().single();
+ if(catalogError){throw new Error('File uploaded but catalogue indexing failed. Original remains safely in Storage. '+catalogError.message);}
+ const {error:legacyError}=await db.from('media_assets').insert({storage_path:path,file_name:file.name,mime_type:file.type,size_bytes:file.size,created_by:user.id});
+ if(legacyError)console.warn('Legacy media_assets indexing skipped; new catalogue entry is saved.',legacyError);
+ try{await audit('upload','media',path,{file_name:file.name,mime_type:file.type,size_bytes:file.size,content_hash:hash})}catch(e){console.warn('Audit entry failed',e)}
+ mediaCatalog.push(data);return {reused:false,item:data};
+}
+$('upload').onchange=async e=>{const files=Array.from(e.target.files||[]);e.target.value='';if(!files.length)return;let ok=0,failed=0,reused=0;
+ for(let i=0;i<files.length;i++){const f=files[i];$('uploadProgress').textContent='Processing '+(i+1)+' of '+files.length+': '+f.name;try{const result=await storeMediaFile(f);if(result.reused)reused++;else ok++}catch(error){failed++;msg('mediaMsg',f.name+': '+error.message)}}
+ $('uploadProgress').textContent='Batch complete: '+ok+' uploaded · '+reused+' reused · '+failed+' failed.';await loadMedia();
+};
+$('urlImport').onclick=async()=>{const url=prompt('Paste a direct HTTPS image URL:');if(!url)return;let parsed;try{parsed=new URL(url)}catch(e){msg('mediaMsg','Enter a valid image URL.');return}if(parsed.protocol!=='https:'){msg('mediaMsg','Only HTTPS image URLs are accepted.');return}
+ msg('mediaMsg','Fetching image URL…');try{const response=await fetch(parsed.href,{mode:'cors',credentials:'omit'});if(!response.ok)throw new Error('The image host returned HTTP '+response.status);const blob=await response.blob();const type=blob.type.split(';')[0].toLowerCase();if(!MEDIA_TYPES.includes(type))throw new Error('URL did not return JPG, PNG, WebP or GIF.');const name=decodeURIComponent(parsed.pathname.split('/').pop()||'imported-image').slice(0,120);const file=new File([blob],name,{type,lastModified:Date.now()});const result=await storeMediaFile(file);msg('mediaMsg',result.reused?'Existing duplicate reused.':'Image imported and catalogued.');await loadMedia()}catch(error){msg('mediaMsg','URL import failed: '+error.message+'. Some image hosts block browser imports (CORS); download the image and use Upload images instead.')}}
 $('mediaSearch').oninput=renderMedia;$('mediaType').onchange=renderMedia;$('mediaRefresh').onclick=loadMedia;
-$('upload').onchange=async e=>{
- const files=Array.from(e.target.files||[]);e.target.value='';
- if(!files.length)return;
- let uploaded=0,failed=0,skipped=0;
- const progress=$('uploadProgress');
- for(let i=0;i<files.length;i++){
-  const f=files[i];progress.textContent='Uploading '+(i+1)+' of '+files.length+': '+f.name;
-  if(!MEDIA_TYPES.includes(f.type)||f.type==='image/svg+xml'){failed++;msg('mediaMsg',f.name+': unsupported format. Use JPG, PNG, WebP or GIF.');continue}
-  if(f.size>MEDIA_MAX_BYTES){skipped++;msg('mediaMsg',f.name+' exceeds the 20 MB per-image limit.');continue}
-  const safeName=f.name.normalize('NFKD').replace(/[^\w.-]/g,'-').replace(/-+/g,'-').slice(-120);
-  const path=Date.now()+'-'+i+'-'+crypto.randomUUID()+'-'+safeName;
-  const {error}=await db.storage.from('identitylock-media').upload(path,f,{contentType:f.type,upsert:false,cacheControl:'31536000'});
-  if(error){failed++;msg('mediaMsg',f.name+': '+error.message+' (the bucket may enforce a lower server-side limit).');continue}
-  const {error:metaError}=await db.from('media_assets').insert({storage_path:path,file_name:f.name,mime_type:f.type,size_bytes:f.size,created_by:user.id});
-  if(metaError){failed++;msg('mediaMsg',f.name+' uploaded, but metadata indexing failed: '+metaError.message+'. The original file remains in Storage.');continue}
-  try{await audit('upload','media',path,{file_name:f.name,mime_type:f.type,size_bytes:f.size})}catch(error){console.warn('Media uploaded; audit logging failed.',error)}
-  uploaded++;
- }
- progress.textContent='Batch finished: '+uploaded+' uploaded · '+skipped+' skipped · '+failed+' failed.';
- msg('mediaMsg','Upload batch finished. '+uploaded+' uploaded, '+skipped+' skipped, '+failed+' failed. Refreshing library…');
- await loadMedia();
-};async function loadSettings(){let {data}=await db.from('site_settings').select('key,value').in('key',['announcement','contact_email','footer_text']);let v=Object.fromEntries((data||[]).map(x=>[x.key,x.value]));$('announcement').value=v.announcement?.text||'';$('contact').value=v.contact_email?.text||'';$('footer').value=v.footer_text?.text||''}$('saveSettings').onclick=async()=>{let rows=[['announcement',$('announcement').value],['contact_email',$('contact').value],['footer_text',$('footer').value]].map(([key,text])=>({key,value:{text},is_public:true,updated_by:user.id}));let {error}=await db.from('site_settings').upsert(rows);if(error){msg('settingsMsg',error.message);return}await audit('update','settings','global');msg('settingsMsg','Settings saved.')};async function loadLogs(){let {data}=await db.from('admin_audit_log').select('action,entity_type,entity_id,created_at').order('created_at',{ascending:false}).limit(50);$('logs').innerHTML=(data||[]).map(x=>`<p>${esc(x.action)} · ${esc(x.entity_type)} ${esc(x.entity_id)} <small>${new Date(x.created_at).toLocaleString()}</small></p>`).join('')||'<p>No activity yet.</p>'}
+async function loadProjects(){
+ const {data,error}=await db.from('identitylock_media_projects').select('*').order('sort_order').order('created_at',{ascending:false});
+ if(error){msg('projectMsg','Could not load projects: '+error.message);return}
+ mediaProjects=data||[];renderProjects();
+}
+function renderProjects(){
+ $('projectList').innerHTML=mediaProjects.map(p=>`<button type="button" class="project-choice ${editingProjectId===p.id?'active':''}" data-project="${p.id}"><b>${esc(p.title)}</b><small>${esc(p.category)} · ${p.status}</small></button>`).join('')||'<p class="muted">No projects yet. Create your first project.</p>';
+ $('pairProject').innerHTML='<option value="">Choose a project</option>'+mediaProjects.map(p=>`<option value="${p.id}">${esc(p.title)}</option>`).join('');
+ document.querySelectorAll('[data-project]').forEach(b=>b.onclick=()=>editProject(b.dataset.project));
+ const options=mediaCatalog.map(m=>`<option value="${m.id}">${esc(m.file_name)} · ${esc(m.category)}</option>`).join('');
+ $('pairBefore').innerHTML='<option value="">Choose an image</option>'+options;$('pairAfter').innerHTML='<option value="">Choose an image</option>'+options;
+}
+function editProject(id){
+ const p=mediaProjects.find(x=>x.id===id);if(!p)return;editingProjectId=id;
+ $('projectEditorTitle').textContent='Edit project';$('projectTitle').value=p.title;$('projectSlug').value=p.slug;$('projectCategory').value=p.category;$('projectDescription').value=p.description;$('saveProject').textContent='Save changes';renderProjects();
+}
+$('newProject').onclick=()=>{editingProjectId='';$('projectEditorTitle').textContent='Create a project';$('projectForm').reset();$('projectCategory').value='general';$('saveProject').textContent='Save project';renderProjects()};
+$('projectTitle').oninput=()=>{if(!editingProjectId)$('projectSlug').value=$('projectTitle').value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')};
+$('projectForm').onsubmit=async e=>{
+ e.preventDefault();const title=$('projectTitle').value.trim(),slug=$('projectSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'');
+ if(!title||!slug){msg('projectMsg','Project title and slug are required.');return}
+ const payload={title,slug,category:$('projectCategory').value.trim()||'general',description:$('projectDescription').value.trim(),updated_by:user.id};
+ const query=editingProjectId?db.from('identitylock_media_projects').update(payload).eq('id',editingProjectId):db.from('identitylock_media_projects').insert({...payload,created_by:user.id});
+ const {data,error}=await query.select().single();if(error){msg('projectMsg','Could not save project: '+error.message);return}
+ editingProjectId=data.id;await audit('save','media_project',data.id,{title,slug});msg('projectMsg','Project saved.');await loadProjects();editProject(data.id);
+};
+$('pairProject').onchange=async()=>{activeProjectId=$('pairProject').value;await loadPairs()};
+$('pairForm').onsubmit=async e=>{
+ e.preventDefault();const projectId=$('pairProject').value,before=$('pairBefore').value,after=$('pairAfter').value;
+ if(!projectId){msg('pairMsg','Create or select a project first.');return}if(!before||!after||before===after){msg('pairMsg','Choose two different images for the before and after pair.');return}
+ const {data:existing}=await db.from('identitylock_comparison_pairs').select('sort_order').eq('project_id',projectId).order('sort_order',{ascending:false}).limit(1);
+ const row={project_id:projectId,original_media_id:before,transformed_media_id:after,title:$('pairTitle').value.trim(),description:$('pairDescription').value.trim(),disclaimer:$('pairDisclaimer').value.trim(),sort_order:(existing?.[0]?.sort_order??-1)+1};
+ const {data,error}=await db.from('identitylock_comparison_pairs').insert(row).select().single();if(error){msg('pairMsg','Could not create pair: '+error.message);return}
+ await audit('create','comparison_pair',data.id,{project_id:projectId});msg('pairMsg','Before/after pair created.');$('pairForm').reset();$('pairProject').value=projectId;activeProjectId=projectId;await loadPairs();
+};
+async function loadPairs(){
+ const projectId=$('pairProject').value;if(!projectId){$('pairList').innerHTML='<p class="muted">Select a project to manage its pairs.</p>';return}
+ const {data,error}=await db.from('identitylock_comparison_pairs').select('*,before:identitylock_media_items!identitylock_comparison_pairs_original_media_id_fkey(id,file_name,storage_path),after:identitylock_media_items!identitylock_comparison_pairs_transformed_media_id_fkey(id,file_name,storage_path)').eq('project_id',projectId).order('sort_order');
+ if(error){msg('pairMsg','Could not load comparison pairs: '+error.message);return}
+ const rows=data||[];$('pairList').innerHTML=rows.map((p,i)=>`<article class="pair-row"><div class="pair-thumbs"><img src="${esc(mediaUrl(p.before.storage_path))}" alt="Before"><span>→</span><img src="${esc(mediaUrl(p.after.storage_path))}" alt="After"></div><div class="pair-copy"><b>${esc(p.title||'Untitled comparison')}</b><p>${esc(p.description||'')}</p><small>${esc(p.before.file_name)} → ${esc(p.after.file_name)}</small></div><div class="pair-order"><button type="button" data-pair-up="${p.id}" ${i===0?'disabled':''}>↑</button><button type="button" data-pair-down="${p.id}" ${i===rows.length-1?'disabled':''}>↓</button></div></article>`).join('')||'<p class="muted">No comparison pairs in this project yet.</p>';
+ document.querySelectorAll('[data-pair-up]').forEach(b=>b.onclick=()=>movePair(b.dataset.pairUp,-1,rows));document.querySelectorAll('[data-pair-down]').forEach(b=>b.onclick=()=>movePair(b.dataset.pairDown,1,rows));
+}
+async function movePair(id,delta,rows){const i=rows.findIndex(x=>x.id===id),j=i+delta;if(i<0||j<0||j>=rows.length)return;const a=rows[i],b=rows[j];const {error}=await db.from('identitylock_comparison_pairs').update({sort_order:b.sort_order}).eq('id',a.id);if(error){msg('pairMsg','Could not reorder pair: '+error.message);return}const {error:second}=await db.from('identitylock_comparison_pairs').update({sort_order:a.sort_order}).eq('id',b.id);if(second){msg('pairMsg','First ordering update saved; second failed: '+second.message);return}await loadPairs();await audit('reorder','comparison_pair',id,{project_id:activeProjectId})}
+async function loadSettings(){let {data}=await db.from('site_settings').select('key,value').in('key',['announcement','contact_email','footer_text']);let v=Object.fromEntries((data||[]).map(x=>[x.key,x.value]));$('announcement').value=v.announcement?.text||'';$('contact').value=v.contact_email?.text||'';$('footer').value=v.footer_text?.text||''}$('saveSettings').onclick=async()=>{let rows=[['announcement',$('announcement').value],['contact_email',$('contact').value],['footer_text',$('footer').value]].map(([key,text])=>({key,value:{text},is_public:true,updated_by:user.id}));let {error}=await db.from('site_settings').upsert(rows);if(error){msg('settingsMsg',error.message);return}await audit('update','settings','global');msg('settingsMsg','Settings saved.')};async function loadLogs(){let {data}=await db.from('admin_audit_log').select('action,entity_type,entity_id,created_at').order('created_at',{ascending:false}).limit(50);$('logs').innerHTML=(data||[]).map(x=>`<p>${esc(x.action)} · ${esc(x.entity_type)} ${esc(x.entity_id)} <small>${new Date(x.created_at).toLocaleString()}</small></p>`).join('')||'<p>No activity yet.</p>'}
 const HOME_FIELDS=[["visual","Hero comparison — images & captions",["title","Comparison heading"],["original_label","Original image label"],["original_caption","Original image caption"],["original_image_url","Original image URL (HTTPS; optional)"],["new_label","New look image label"],["new_caption","New look image caption"],["new_image_url","New look image URL (HTTPS; optional)"],["disclaimer","Comparison disclaimer"]],["hero","Hero section",["eyebrow","Top label"],["title_line1","Headline — first line"],["title_line2","Headline — second line"],["intro","Introduction"],["primary_cta","Main button text"],["secondary_cta","Secondary button text"],["trust_1","Trust point 1"],["trust_2","Trust point 2"],["trust_3","Trust point 3"]],["manifesto","Problem section",["eyebrow","Section label"],["title_line1","Headline — first line"],["title_line2","Headline — second line"],["body","Description"]],["steps","How it works",["eyebrow","Section label"],["title","Section heading"],["step1_title","Step 1 title"],["step1_body","Step 1 description"],["step2_title","Step 2 title"],["step2_body","Step 2 description"],["step3_title","Step 3 title"],["step3_body","Step 3 description"]],["bundle","What's included",["eyebrow","Section label"],["title","Heading"],["body","Description"],["items","Bundle items — one per line"]],["honest","Realistic results",["eyebrow","Section label"],["title","Heading"],["body","Description"]],["buy","Purchase section",["eyebrow","Section label"],["title","Heading"],["bundle_title","Bundle name"],["features","Purchase features — one per line"]],["faq","Frequently asked questions",["eyebrow","Section label"],["title","Heading"],["items_json","FAQ editor — JSON question/answer pairs"]]];
 let homeDraft={};
 const homeDefaults={
