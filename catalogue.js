@@ -77,7 +77,7 @@
     event.preventDefault();
     if(state.checkoutBusy||!window.IdentityLockSelection.isComplete(state.selected,LIMIT))return;
     const email=$('checkoutEmail').value.trim();
-    if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){ $('checkoutStatus').textContent='Enter a valid email address.';return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ $('checkoutStatus').textContent='Enter a valid email address.';return; }
     const promptIds=selectedPrompts().map(prompt=>prompt.id);
     if(promptIds.length!==LIMIT||new Set(promptIds).size!==LIMIT){$('checkoutStatus').textContent='Your selection changed. Please review the ten prompts again.';return;}
     state.checkoutBusy=true;$('checkoutSubmit').disabled=true;$('checkoutSubmit').textContent='Preparing secure checkout…';$('checkoutStatus').textContent='Creating your ₦500 order…';updateSelectionBar();
