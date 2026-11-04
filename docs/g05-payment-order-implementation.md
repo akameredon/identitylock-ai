@@ -1,6 +1,6 @@
 # G05 — Prompt-Set Checkout Implementation
 
-Status: IN_PROGRESS. The schema and isolated server routes are implemented. A post-merge preview smoke test exposed a Vercel CommonJS/ESM startup incompatibility; the corrective change is on `fix/g05-commonjs-runtime` and awaits preview verification.
+Status: IN_PROGRESS. The database, isolated server routes, and catalogue-to-checkout browser handoff are implemented. Runtime correction is merged; provider-to-database POST verification and catalogue content availability remain outstanding.
 
 ## Product contract
 - A guest submits an email address and exactly 10 distinct published prompt UUIDs.
@@ -35,6 +35,13 @@ Security:
 - Supabase secret key is sent only through the `apikey` header, never as a bearer JWT.
 - These routes are separate from legacy ZIP checkout/verify/download routes.
 
+### Customer selection handoff (added after G04 QA)
+- The original G04 catalogue page intentionally stopped at a preview-only confirmation. It did not submit selected IDs to the new G05 endpoint; this is why the user's real ₦500 test followed the legacy fixed-bundle route.
+- The standalone catalogue review now collects a guest email and POSTs exactly ten currently loaded prompt UUIDs to `/api/prompt-set-checkout`.
+- The browser does not send or control price; the server still fixes NGN 500.
+- The old homepage and fixed-bundle checkout remain unchanged. The new route remains unlinked from the public homepage until G08.
+- Live catalogue query currently returns zero categories and zero published prompts. G07 Admin Studio publishing must populate the library before a customer can make a real selection.
+
 ## Runtime defect and correction
 - The first merged implementation imported an `.mjs` helper from Vercel `.js` API handlers. The Vercel Node 26 runtime logged `ERR_REQUIRE_ESM` and returned FUNCTION_INVOCATION_FAILED for both routes.
 - Corrective branch: `fix/g05-commonjs-runtime`.
@@ -42,7 +49,7 @@ Security:
 - Do not mark this correction complete until a new preview deployment is READY and both routes return their expected method/validation responses.
 
 ## Evidence
-- Original core unit suite: 9 passed, 0 failed before runtime deployment.
+- Core validation suite: 9 passed, 0 failed. Added mocked handler integration coverage for checkout initialization, invalid/unpublished selections, payment verification, amount mismatch and failed atomic transitions; combined selection/core/route suite: 21 passed, 0 failed.
 - SQL negative tests rejected nine IDs and duplicate IDs.
 - Both order tables remained empty after negative tests.
 - RPC privilege checks: anon/authenticated denied; service_role allowed; all RPCs SECURITY INVOKER.
@@ -58,7 +65,7 @@ Security:
 1. Run a deployed POST request with a deliberately unpublished UUID selection and confirm it is rejected without creating an order. The available Vercel fetch connector only performs GET, so this remains untested here.
 2. Verify the actual Paystack-to-Supabase HTTP verification path using Paystack test credentials or a mocked provider-safe integration. Do not initiate a live charge without explicit approval.
 3. Run non-purchasing regression checks for the existing fixed-bundle checkout, verification and download routes; source files were not changed by either G05 PR.
-4. Confirm the production environment variable visibility is Sensitive using Vercel's UI; its value must never be displayed. The current Vercel listing contradicts the earlier UI confirmation, and the connector cannot safely change the visibility without the secret value.
+4. Confirm production environment variable metadata remains Sensitive; a type-only metadata read (without decryption) has reported both required secrets as Sensitive/secret for Production. Never read or display their values.
 5. Keep the new prompt-set checkout unlinked from the public homepage until G08. G05 remains IN_PROGRESS until the remaining checks and visibility discrepancy are resolved.
 
 ## Later gates

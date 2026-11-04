@@ -75,7 +75,11 @@ export default async function handler(req, res) {
       currency: 'NGN'
     });
   } catch (error) {
-    console.error('Prompt-set checkout failed:', error?.message || 'unknown error');
+    const message = typeof error?.message === 'string' ? error.message : '';
+    if (message.includes('All 10 prompts must be currently published')) {
+      return res.status(409).json({ error: 'One or more selected prompts are no longer available. Refresh the catalogue and choose again.' });
+    }
+    console.error('Prompt-set checkout failed:', message || 'unknown error');
     return res.status(503).json({ error: 'Prompt-set checkout is temporarily unavailable.' });
   }
 }

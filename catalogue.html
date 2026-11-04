@@ -37,7 +37,13 @@
     <div class="review-inner">
       <div class="review-top"><div><p class="eyebrow">YOUR CUSTOM SET</p><h2 id="reviewTitle">Your 10 selected prompts</h2></div><button id="closeReview" class="close-review" type="button" aria-label="Close selection review">×</button></div>
       <ol id="reviewList" class="review-list"></ol>
-      <p class="preview-notice">Selection preview only. Payment and order creation are not active in this stage. No payment will be taken.</p>
+      <form id="checkoutForm" class="checkout-form">
+        <label for="checkoutEmail">Email address for your receipt and prompt delivery</label>
+        <input id="checkoutEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" required maxlength="254">
+        <button id="checkoutSubmit" type="submit">Pay ₦500 and get my 10 prompts</button>
+        <p id="checkoutStatus" class="checkout-status" role="status" aria-live="polite"></p>
+        <p class="secure-note">Secure Paystack checkout. Your order is created for these exact 10 prompts. Payment is verified before delivery.</p>
+      </form>
     </div>
   </section>
 
