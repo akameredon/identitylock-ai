@@ -6,3 +6,9 @@
 .visual-card.has-custom-image [data-home-image-fallback]{display:none!important}
 .visual-card .visual-photo:not([hidden]){flex:0 0 auto}
 @media(max-width:700px){.visual-card .visual-photo,.visual-card .portrait{height:clamp(150px,42vw,210px);aspect-ratio:4/5}}
+
+.selection-cta{display:grid;gap:15px;margin-top:20px}
+.selection-cta>p{font-size:13px;line-height:1.7;color:#65716c;margin:0}
+.selection-cta .primary{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center}
+.selection-cta .legacy-link{font-size:11px;margin-top:2px}
+.selection-cta .legacy-link a{color:#1c4438;font-weight:700;text-decoration:underline;text-underline-offset:3px}
