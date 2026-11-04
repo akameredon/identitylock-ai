@@ -10,7 +10,7 @@ CREATE TABLE public.identitylock_orders (
   currency text NOT NULL DEFAULT 'NGN' CHECK (currency = 'NGN'),
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled')),
   paystack_reference text NOT NULL UNIQUE
-    CHECK (paystack_reference ~ '^[A-Za-z0-9.=\\-]{8,100}$'),
+    CHECK (paystack_reference ~ '^[A-Za-z0-9.-]{8,100}$'),
   paystack_transaction_id text UNIQUE,
   paid_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -60,7 +60,6 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.identitylock_reject_prompt_order_item_mutation() FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.identitylock_reject_prompt_order_item_mutation() TO service_role;
 
 CREATE TRIGGER identitylock_order_items_immutable
 BEFORE UPDATE OR DELETE ON public.identitylock_order_items
@@ -80,6 +79,7 @@ DECLARE
   v_order_id uuid;
   v_distinct_count integer;
   v_eligible_count integer;
+  v_inserted_count integer;
 BEGIN
   IF p_email IS NULL
      OR length(btrim(p_email)) NOT BETWEEN 5 AND 254
@@ -101,7 +101,7 @@ BEGIN
   END IF;
 
   IF p_paystack_reference IS NULL
-     OR p_paystack_reference !~ '^[A-Za-z0-9.=\\-]{8,100}$' THEN
+     OR p_paystack_reference !~ '^[A-Za-z0-9.-]{8,100}$' THEN
     RAISE EXCEPTION 'Invalid payment reference';
   END IF;
 
@@ -144,6 +144,11 @@ BEGIN
   WHERE p.status = 'published'
   ORDER BY requested.position;
 
+  GET DIAGNOSTICS v_inserted_count = ROW_COUNT;
+  IF v_inserted_count <> 10 THEN
+    RAISE EXCEPTION 'Could not snapshot all 10 prompt versions';
+  END IF;
+
   RETURN v_order_id;
 END;
 $$;
@@ -166,11 +171,20 @@ SET search_path = ''
 AS $$
 DECLARE
   v_updated_id uuid;
+  v_item_count integer;
 BEGIN
   IF p_order_id IS NULL OR p_paystack_reference IS NULL
      OR p_transaction_id IS NULL OR length(p_transaction_id) = 0
      OR p_amount_kobo <> 50000 OR p_currency <> 'NGN'
      OR p_paid_at IS NULL THEN
+    RETURN false;
+  END IF;
+
+  SELECT count(*) INTO v_item_count
+    FROM public.identitylock_order_items i
+   WHERE i.order_id = p_order_id;
+
+  IF v_item_count <> 10 THEN
     RETURN false;
   END IF;
 
