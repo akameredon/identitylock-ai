@@ -95,7 +95,7 @@
       const categoryResult=await db.from('identitylock_prompt_categories').select('id,slug,name,description,sort_order').eq('is_active',true).order('sort_order',{ascending:true}).order('name',{ascending:true});
       if(categoryResult.error)throw categoryResult.error;
       state.categories=categoryResult.data||[];
-      if(!state.categories.length){state.prompts=[];render();return;}
+      if(!state.categories.length){state.prompts=[];state.selected.clear();state.category='all';render();return;}
       const ids=state.categories.map(category=>category.id);
       const promptResult=await db.from('identitylock_prompts').select('id,slug,title,short_description,category_id,sort_order,tags').eq('status','published').in('category_id',ids).order('sort_order',{ascending:true}).order('title',{ascending:true});
       if(promptResult.error)throw promptResult.error;
