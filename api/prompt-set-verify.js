@@ -1,4 +1,4 @@
-import { validatePaystackPromptSetTransaction } from './prompt-set-core.mjs';
+const { validatePaystackPromptSetTransaction } = require('./prompt-set-core.cjs');
 
 const SUPABASE_URL = 'https://zcyxoucbglsyrqzqksjc.supabase.co';
 
