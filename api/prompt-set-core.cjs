@@ -1,5 +1,5 @@
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isUuid(value) {
   return typeof value === 'string' && UUID_RE.test(value);
@@ -47,7 +47,7 @@ function validatePaystackPromptSetTransaction(transaction, expectedReference) {
     && transaction.currency === 'NGN'
     && metadata?.product === 'identitylock-prompt-set'
     && isUuid(orderId)
-    && (typeof transaction.id === 'number' || (typeof transaction.id === 'string' && /^\\d+$/.test(transaction.id)));
+    && (typeof transaction.id === 'number' || (typeof transaction.id === 'string' && /^\d+$/.test(transaction.id)));
   if (!valid) return { ok: false, error: 'Payment does not match this prompt-set order.' };
   return {
     ok: true,
