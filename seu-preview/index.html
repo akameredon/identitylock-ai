@@ -67,6 +67,35 @@ footer{background:#172b25;color:#fff;padding:30px 0 95px}footer .wrap{display:fl
 @media(max-width:900px){.category-grid{grid-template-columns:repeat(3,1fr)}.prompt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.section-head{align-items:start;flex-direction:column}}
 @media(max-width:600px){header{height:64px}.navlinks a:not(:last-child){display:none}.navlinks{gap:0;font-size:11px}.wrap{width:calc(100% - 32px)}.hero{padding:48px 0 42px}h1{font-size:48px}.lead{font-size:14px}.comparison{grid-template-columns:1fr 24px 1fr;gap:6px}.compare-card{padding:6px}.compare-card img{height:160px}.compare-card p{font-size:10px}.arrow{font-size:18px}.trustinner{gap:10px 18px}.section,.catalogue-section{padding:48px 0}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.category{min-height:118px;padding:13px}.category strong{font-size:16px}.catalogue-top{align-items:stretch;flex-direction:column}.search{width:100%}.prompt-grid{grid-template-columns:1fr}.prompt{padding:13px}.prompt p{min-height:0}.slot{min-height:76px}.dock-inner{gap:10px}.dock-label{font-size:10px}.dock-label small{font-size:9px}.progress{width:90px}.dock-actions{gap:9px}.dock-price{font-size:19px}.dock-actions button{padding:0 10px;font-size:10px}footer .wrap{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* SEU-G01 premium interaction layer: glass is a restrained accent, never the reading surface. */
+header{background:rgba(255,255,255,.82);backdrop-filter:saturate(150%) blur(16px);-webkit-backdrop-filter:saturate(150%) blur(16px);border-bottom:1px solid rgba(226,229,221,.78)}
+.selection-dock{background:rgba(23,43,37,.91);backdrop-filter:saturate(145%) blur(18px);-webkit-backdrop-filter:saturate(145%) blur(18px);border-top:1px solid #ffffff24;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.category-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(118px,auto)}
+.category:nth-child(1){grid-column:span 2;grid-row:span 1;background:linear-gradient(145deg,#fff,#edf1e9)}
+.category:nth-child(2){grid-column:span 2}
+.category:nth-child(3){grid-column:span 2}
+.category:nth-child(4){grid-column:span 3}
+.category:nth-child(5){grid-column:span 3;background:linear-gradient(145deg,#fff,#f5eee2)}
+.finder{padding:30px;border:1px solid rgba(226,229,221,.9);border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(239,243,235,.82));box-shadow:0 22px 60px rgba(23,33,30,.07);display:grid;grid-template-columns:1fr 1.1fr;gap:26px;align-items:center}
+.finder-copy h2{font-size:clamp(28px,4vw,42px);margin:8px 0 10px}
+.finder-copy p{color:var(--muted);font-size:13px;max-width:420px}
+.finder-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.finder-controls label{display:grid;gap:7px;font-size:11px;font-weight:700;color:var(--green)}
+.finder-controls select{width:100%;min-height:46px;padding:10px 12px;border:1px solid #cfd8ce;border-radius:9px;background:#fff;color:var(--ink)}
+.finder-result{grid-column:1/-1;background:rgba(28,68,56,.06);border:1px solid rgba(28,68,56,.13);border-radius:12px;padding:15px}
+.finder-result strong{display:block;font:600 19px/1.3 "Playfair Display",Georgia,serif}
+.finder-result p{font-size:11px;color:var(--muted);margin:6px 0 10px}
+.finder-result a{font-size:11px;font-weight:700;color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.glass-note{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #ffffffa8;border-radius:99px;background:rgba(255,255,255,.48);backdrop-filter:blur(10px);font-size:10px;color:var(--green);font-weight:700}
+.prompt{box-shadow:0 5px 20px rgba(23,33,30,.035);transition:transform .18s,border-color .18s,box-shadow .18s}
+.prompt:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(23,33,30,.08)}
+.primary,.secondary,.select,.chip,.dock-actions button{transition:background-color .18s,border-color .18s,transform .18s}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #bd8a40;outline-offset:3px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header{background:#fff}.selection-dock{background:#172b25}.glass-note{background:#fff}}
+@media(max-width:900px){.category-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.category:nth-child(1),.category:nth-child(2){grid-column:span 2}.category:nth-child(3),.category:nth-child(4),.category:nth-child(5){grid-column:span 2}.finder{grid-template-columns:1fr}}
+@media(max-width:600px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(112px,auto)}.category:nth-child(n){grid-column:span 1;grid-row:span 1}.finder{padding:20px;border-radius:16px;gap:16px}.finder-controls{grid-template-columns:1fr}.finder-result{grid-column:auto}.selection-dock{padding-left:16px;padding-right:16px}}
+
 </style>
 </head>
 <body>
@@ -96,6 +125,30 @@ footer{background:#172b25;color:#fff;padding:30px 0 95px}footer .wrap{display:fl
  <div class="wrap">
   <div class="section-head"><div><div class="eyebrow">FIND YOUR LOOK</div><h2>Start with the occasion.</h2></div><p>Choose a category to narrow the collection. Each prompt will have its own approved original and transformed example, managed from Admin Studio.</p></div>
   <div class="category-grid" id="categoryGrid"></div>
+ </div>
+</section>
+<section class="section" id="style-finder">
+ <div class="wrap">
+  <div class="finder">
+   <div class="finder-copy">
+    <span class="glass-note">✦ GUIDED STYLE FINDER · INTERACTIVE PREVIEW</span>
+    <h2>Not sure where to start?</h2>
+    <p>Tell us the occasion and the direction you like. IdentityLock will narrow the catalogue to a useful starting point—without asking for an account or a photo.</p>
+   </div>
+   <div class="finder-controls">
+    <label for="occasion">What is the occasion?
+     <select id="occasion"><option value="all">I'm exploring</option><option value="traditional">Traditional celebration</option><option value="professional">Work or business</option><option value="celebrations">Birthday or graduation</option><option value="weddings">Wedding or formal event</option><option value="luxury">Dinner or evening event</option></select>
+    </label>
+    <label for="direction">What style direction do you prefer?
+     <select id="direction"><option value="any">Show me suitable options</option><option value="classic">Classic and elegant</option><option value="bold">Statement and distinctive</option><option value="modern">Modern and polished</option></select>
+    </label>
+    <div class="finder-result" aria-live="polite">
+     <strong id="finderTitle">Explore all five collections</strong>
+     <p id="finderText">Choose an occasion to get a focused starting point. You can still browse and select any ten prompts.</p>
+     <a href="#catalogue" id="finderLink">Browse the prompt library →</a>
+    </div>
+   </div>
+  </div>
  </div>
 </section>
 <section class="catalogue-section" id="catalogue">
@@ -163,6 +216,17 @@ function renderCategories(){
  $("categoryGrid").replaceChildren();
  categories.slice(1).forEach(c=>{const a=document.createElement("a");a.className="category";a.href="#catalogue";a.innerHTML='<small>'+String(c.count).padStart(2,"0")+' PROMPTS</small><strong>'+c.name+'</strong><span>'+c.description+' →</span>';a.onclick=()=>{active=c.id;render()};$("categoryGrid").append(a)});
 }
+function updateFinder(){
+ const occasion=$("occasion").value, direction=$("direction").value;
+ const titles={all:"Explore all five collections",traditional:"Traditional & Cultural looks",professional:"Professional & Corporate looks",celebrations:"Celebrations & Milestones",weddings:"Weddings & Formal occasions",luxury:"Luxury & Evening looks"};
+ const descriptions={classic:"Start with timeless, refined styling.",bold:"Explore distinctive details and statement styling.",modern:"Start with clean, contemporary styling.",any:"Here are the available prompts for this occasion."};
+ $("finderTitle").textContent=titles[occasion]||titles.all;
+ $("finderText").textContent=(descriptions[direction]||descriptions.any)+" This guide uses the published catalogue only; it does not generate or reveal paid prompt text.";
+ $("finderLink").textContent=occasion==="all"?"Browse all prompts →":"Show this category →";
+ $("finderLink").onclick=()=>{active=occasion;render()};
+}
+$("occasion").addEventListener("change",updateFinder);
+$("direction").addEventListener("change",updateFinder);
 function updateDock(){
  const n=selected.size;$("count").textContent=n+" / 10 selected";$("remaining").textContent=n===10?"Your set is ready to review":(10-n)+" more to choose";$("fill").style.width=(n*10)+"%";$("review").disabled=n!==10;
 }
@@ -188,7 +252,7 @@ $("search").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase
 $("review").onclick=()=>{if(selected.size!==10)return;$("chosenList").replaceChildren();prompts.filter(p=>selected.has(p[0])).forEach(p=>{const li=document.createElement("li");li.textContent=p[0];$("chosenList").append(li)});$("dialog").classList.add("open");$("closeDialog").focus()};
 $("closeDialog").onclick=()=>$("dialog").classList.remove("open");
 $("dialog").addEventListener("click",e=>{if(e.target===$("dialog"))$("dialog").classList.remove("open")});
-renderCategories();render();
+renderCategories();render();updateFinder();
 </script>
 </body>
 </html>
