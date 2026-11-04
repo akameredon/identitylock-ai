@@ -9,6 +9,7 @@ const legacy = fs.readFileSync(path.join(root, 'legacy-bundle.html'), 'utf8');
 const catalogue = fs.readFileSync(path.join(root, 'catalogue.js'), 'utf8');
 const homeScript = fs.readFileSync(path.join(root, 'homepage.js'), 'utf8');
 const legacyScript = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
+const adminScript = fs.readFileSync(path.join(root, 'admin.js'), 'utf8');
 
 test('primary homepage routes customers to the choose-any-ten catalogue', () => {
   assert.match(homepage, /href="\/catalogue\.html"/);
@@ -34,4 +35,9 @@ test('catalogue submits the selected ten prompt IDs to the secure checkout API',
 test('homepage list renderer supports a final plus-marked benefit row', () => {
   assert.match(homeScript, /line\.trim\(\)\.startsWith\('\+'\)/);
   assert.match(homeScript, /line\.replace\(/);
+});
+
+test('Homepage Manager defaults store prompt and benefit lists as real line breaks', () => {
+  assert.match(adminScript, /items:\[[\s\S]*?\]\.join\(String\.fromCharCode\(10\)\)/);
+  assert.match(adminScript, /features:\[[\s\S]*?\]\.join\(String\.fromCharCode\(10\)\)/);
 });
