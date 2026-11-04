@@ -279,7 +279,7 @@ $('categoryAdminForm').onsubmit=async event=>{
  const {data,error}=await query.select().single();
  if(error){msg('categoryAdminMsg','Could not save category: '+error.message);return}
  await audit(id?'update':'create','prompt_category',data.id,{name,slug,is_active:payload.is_active});
- msg('categoryAdminMsg,'Category saved.');
+ msg('categoryAdminMsg','Category saved.');
  await loadPromptCatalogue();editPromptCategory(data.id);
 };
 function newPromptAdmin(){
