@@ -1,6 +1,6 @@
 # G03 — Prompt Catalogue Foundation
 
-Status: database foundation applied, repository migrations merged, and production deployment READY. Admin Studio catalogue screens are intentionally scheduled for G07.
+Status: **G03 PASSED** — database foundation applied, repository migrations merged, security and regression checks completed, and production deployment READY. Admin Studio catalogue screens are intentionally scheduled for G07.
 
 ## Scope
 
@@ -73,7 +73,10 @@ The first creates the three tables, constraints, RLS, policies, grants and core 
 - Anonymous access to prompt versions is not granted.
 - Authenticated version privileges are SELECT and INSERT only.
 - Admin RLS policy and version creation/current-pointer update were exercised in a rollback-only transaction using the authorized administrator identity; no QA rows remain.
-- The composite current-version foreign key was inspected in PostgreSQL.
+- The composite current-version foreign key was inspected in PostgreSQL and a rollback-only test confirmed that a prompt cannot point to another prompt's version.
+- A rollback-only admin test confirmed first-version creation, append-only second-version insertion, and safe advancement of the current-version pointer.
+- A simulated authenticated non-admin returned zero visible category, prompt, and version rows.
+- Temporary test data was rolled back; the three catalogue tables contain zero QA records.
 - Supabase security and performance advisors were reviewed. Existing project-level warnings remain documented for G09; no unrelated security settings or existing policies were changed.
 - Vercel production deployment for the merge commit is READY and aliases `https://identitylock-ai.vercel.app`.
 - Existing checkout, verification, download, homepage, media and customer records were not changed by G03.
