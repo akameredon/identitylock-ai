@@ -44,7 +44,7 @@ if(db){
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){user=null;$('app').classList.add('hidden');$('login').classList.remove('hidden')}});
   db.auth.getSession().then(({data,error})=>{if(error)msg('loginMsg','Session check failed: '+error.message);return auth(data?.session||null)}).catch(error=>msg('loginMsg','Session check failed: '+(error?.message||'Please refresh.')));
 }
-async function audit(action,type,id,details={}){await db.from('admin_audit_log').insert({actor_id:user.id,action,entity_type:type,entity_id:String(id||''),details})}async function load(){await Promise.all([loadPages(),loadMedia(),loadProjects(),loadSettings(),loadLogs(),loadHomepage()])}async function loadPages(){let {data,error}=await db.from('site_pages').select('*').order('updated_at',{ascending:false});if(error){msg('pageMsg',error.message);return}pages=data||[];$('count').textContent=pages.length;$('published').textContent=pages.filter(x=>x.status==='published').length;$('drafts').textContent=pages.filter(x=>x.status==='draft').length;$('list').innerHTML=pages.map(x=>`<button class="page ${chosen?.id===x.id?'active':''}" data-id="${x.id}"><b>${esc(x.title)}</b><small>/${esc(x.slug)} · ${x.status}</small></button>`).join('')||'<p>No pages yet.</p>';$('recent').innerHTML=pages.slice(0,6).map(x=>`<p>${esc(x.title)} — ${x.status}</p>`).join('')||'<p>No pages yet.</p>';document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>choose(b.dataset.id))}function choose(id){chosen=pages.find(x=>x.id===id);$('form').classList.remove('hidden');$('editTitle').textContent='Edit page';$('title').value=chosen.title;$('slug').value=chosen.slug;$('seo').value=chosen.seo?.description||'';$('body').innerHTML=DOMPurify.sanitize(chosen.content?.html||'');$('status').value=chosen.status;document.querySelectorAll('.page').forEach(b=>b.classList.toggle('active',b.dataset.id===id))}function fresh(){chosen=null;$('form').classList.remove('hidden');$('editTitle').textContent='New page';['title','slug','seo'].forEach(id=>$(id).value='');$('body').innerHTML='';$('status').value='draft';document.querySelectorAll('.page').forEach(b=>b.classList.remove('active'))}$('new').onclick=$('newTop').onclick=fresh;document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{let c=b.dataset.cmd;if(c==='createLink'){let u=prompt('HTTPS link URL');if(u&&/^https:\/\//i.test(u))document.execCommand(c,false,u)}else document.execCommand(c,false,b.dataset.value||null)});async function save(status){let title=$('title').value.trim(),slug=$('slug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'');if(!title||!slug){msg('pageMsg','Title and URL slug are required.');return}let payload={title,slug,status,content:{html:DOMPurify.sanitize($('body').innerHTML,{USE_PROFILES:{html:true}})},seo:{description:$('seo').value.trim()},updated_by:user.id};let q=chosen?db.from('site_pages').update(payload).eq('id',chosen.id).select().single():db.from('site_pages').insert(payload).select().single();let {data,error}=await q;if(error){msg('pageMsg',error.message);return}chosen=data;await audit(status==='published'?'publish':'save','page',data.id,{title,slug,status});msg('pageMsg',status==='published'?'Page published.':'Draft saved.');await loadPages();choose(data.id)}$('save').onclick=()=>save('draft');$('publish').onclick=()=>save('published');let mediaFiles=[],mediaCatalog=[],mediaProjects=[],activeProjectId='',editingProjectId='';
+async function audit(action,type,id,details={}){await db.from('admin_audit_log').insert({actor_id:user.id,action,entity_type:type,entity_id:String(id||''),details})}async function load(){await Promise.all([loadPages(),loadMedia(),loadProjects(),loadSettings(),loadLogs(),loadHomepage(),loadPromptCatalogue()])}async function loadPages(){let {data,error}=await db.from('site_pages').select('*').order('updated_at',{ascending:false});if(error){msg('pageMsg',error.message);return}pages=data||[];$('count').textContent=pages.length;$('published').textContent=pages.filter(x=>x.status==='published').length;$('drafts').textContent=pages.filter(x=>x.status==='draft').length;$('list').innerHTML=pages.map(x=>`<button class="page ${chosen?.id===x.id?'active':''}" data-id="${x.id}"><b>${esc(x.title)}</b><small>/${esc(x.slug)} · ${x.status}</small></button>`).join('')||'<p>No pages yet.</p>';$('recent').innerHTML=pages.slice(0,6).map(x=>`<p>${esc(x.title)} — ${x.status}</p>`).join('')||'<p>No pages yet.</p>';document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>choose(b.dataset.id))}function choose(id){chosen=pages.find(x=>x.id===id);$('form').classList.remove('hidden');$('editTitle').textContent='Edit page';$('title').value=chosen.title;$('slug').value=chosen.slug;$('seo').value=chosen.seo?.description||'';$('body').innerHTML=DOMPurify.sanitize(chosen.content?.html||'');$('status').value=chosen.status;document.querySelectorAll('.page').forEach(b=>b.classList.toggle('active',b.dataset.id===id))}function fresh(){chosen=null;$('form').classList.remove('hidden');$('editTitle').textContent='New page';['title','slug','seo'].forEach(id=>$(id).value='');$('body').innerHTML='';$('status').value='draft';document.querySelectorAll('.page').forEach(b=>b.classList.remove('active'))}$('new').onclick=$('newTop').onclick=fresh;document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{let c=b.dataset.cmd;if(c==='createLink'){let u=prompt('HTTPS link URL');if(u&&/^https:\/\//i.test(u))document.execCommand(c,false,u)}else document.execCommand(c,false,b.dataset.value||null)});async function save(status){let title=$('title').value.trim(),slug=$('slug').value.trim().toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'');if(!title||!slug){msg('pageMsg','Title and URL slug are required.');return}let payload={title,slug,status,content:{html:DOMPurify.sanitize($('body').innerHTML,{USE_PROFILES:{html:true}})},seo:{description:$('seo').value.trim()},updated_by:user.id};let q=chosen?db.from('site_pages').update(payload).eq('id',chosen.id).select().single():db.from('site_pages').insert(payload).select().single();let {data,error}=await q;if(error){msg('pageMsg',error.message);return}chosen=data;await audit(status==='published'?'publish':'save','page',data.id,{title,slug,status});msg('pageMsg',status==='published'?'Page published.':'Draft saved.');await loadPages();choose(data.id)}$('save').onclick=()=>save('draft');$('publish').onclick=()=>save('published');let mediaFiles=[],mediaCatalog=[],mediaProjects=[],activeProjectId='',editingProjectId='';
 const MEDIA_MAX_BYTES=20*1024*1024,MEDIA_BUCKET='identitylock-media';
 const MEDIA_TYPES=['image/jpeg','image/png','image/webp','image/gif'];
 const sha256=async file=>{const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,'0')).join('')};
@@ -212,3 +212,137 @@ async function saveHomepage(publish){let value;try{value=collectHomeFields()}cat
 $('homeReload').onclick=loadHomepage;$('homePreview').onclick=()=>window.open('/?preview=homepage','_blank','noopener');$('homeSave').onclick=()=>saveHomepage(false);$('homePublish').onclick=()=>saveHomepage(true);
 
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));$('heading').textContent=b.textContent});
+/* Prompt catalogue management: append-only versions, no destructive deletes. */
+let promptCategories=[],promptRows=[],selectedPromptAdmin=null,selectedPromptVersions=[];
+const promptSlug=value=>String(value||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,140);
+function renderPromptCategoryOptions(selectedId=''){
+ const select=$('promptAdminCategory');
+ select.innerHTML='<option value="">Choose a category</option>'+promptCategories.map(category=>'<option value="'+esc(category.id)+'">'+esc(category.name)+(category.is_active?'':' (inactive)')+'</option>').join('');
+ select.value=selectedId||'';
+}
+function renderCategoryAdmin(){
+ $('categoryAdminList').innerHTML=promptCategories.map(category=>'<div class="catalogue-category-row"><button type="button" class="catalogue-category '+(category.id===$('categoryAdminId').value?'active':'')+'" data-category-edit="'+esc(category.id)+'"><span class="state">'+(category.is_active?'Active':'Inactive')+'</span><b>'+esc(category.name)+'</b><small>/'+esc(category.slug)+' · '+Number(category.sort_order||0)+'</small></button></div>').join('')||'<p class="muted">No categories yet. Create one before adding prompts.</p>';
+ document.querySelectorAll('[data-category-edit]').forEach(button=>button.onclick=()=>editPromptCategory(button.dataset.categoryEdit));
+ renderPromptCategoryOptions($('promptAdminCategory').value);
+}
+function renderPromptAdminList(){
+ const query=($('promptAdminSearch').value||'').trim().toLowerCase();
+ const filtered=promptRows.filter(prompt=>{
+  const category=promptCategories.find(item=>item.id===prompt.category_id);
+  return !query||[prompt.title,prompt.slug,prompt.short_description,category?.name,...(prompt.tags||[])].join(' ').toLowerCase().includes(query);
+ });
+ $('promptAdminCount').textContent=promptRows.length+' prompts';
+ $('promptAdminList').innerHTML=filtered.map(prompt=>{
+  const category=promptCategories.find(item=>item.id===prompt.category_id);
+  return '<button type="button" class="catalogue-prompt '+(selectedPromptAdmin?.id===prompt.id?'active':'')+'" data-prompt-edit="'+esc(prompt.id)+'"><span class="state">'+esc(prompt.status)+'</span><b>'+esc(prompt.title)+'</b><small>'+esc(category?.name||'Uncategorised')+' · v'+(prompt.current_version_number||'—')+'</small></button>';
+ }).join('')||'<p class="muted">No prompts match this search. Create your first prompt.</p>';
+ document.querySelectorAll('[data-prompt-edit]').forEach(button=>button.onclick=()=>editPromptAdmin(button.dataset.promptEdit));
+}
+async function loadPromptCatalogue(){
+ if(!db||!user)return;
+ msg('promptAdminMsg','Loading prompt catalogue…');
+ const [categories,prompts]=await Promise.all([
+  db.from('identitylock_prompt_categories').select('*').order('sort_order').order('name'),
+  db.from('identitylock_prompts').select('*').order('sort_order').order('title')
+ ]);
+ if(categories.error){msg('promptAdminMsg','Could not load categories: '+categories.error.message);return}
+ if(prompts.error){msg('promptAdminMsg','Could not load prompts: '+prompts.error.message);return}
+ promptCategories=categories.data||[];
+ promptRows=prompts.data||[];
+ renderCategoryAdmin();
+ renderPromptAdminList();
+ msg('promptAdminMsg',promptRows.length+' prompts across '+promptCategories.length+' categories. Full prompt text is admin-only.');
+}
+function newPromptCategory(){
+ $('categoryAdminForm').classList.remove('hidden');$('categoryAdminForm').reset();
+ $('categoryAdminId').value='';$('categoryAdminTitle').textContent='New category';
+ $('categoryAdminSort').value=String(promptCategories.length*10);$('categoryAdminActive').checked=true;
+ msg('categoryAdminMsg','');
+}
+function editPromptCategory(id){
+ const category=promptCategories.find(item=>item.id===id);if(!category)return;
+ $('categoryAdminForm').classList.remove('hidden');$('categoryAdminTitle').textContent='Edit category';
+ $('categoryAdminId').value=category.id;$('categoryAdminName').value=category.name;
+ $('categoryAdminSlug').value=category.slug;$('categoryAdminDescription').value=category.description||'';
+ $('categoryAdminSort').value=category.sort_order??0;$('categoryAdminActive').checked=!!category.is_active;
+ msg('categoryAdminMsg','');
+}
+$('newCategory').onclick=newPromptCategory;
+$('categoryAdminCancel').onclick=()=>{$('categoryAdminForm').classList.add('hidden');msg('categoryAdminMsg','')};
+$('categoryAdminName').oninput=()=>{if(!$('categoryAdminId').value)$('categoryAdminSlug').value=promptSlug($('categoryAdminName').value)};
+$('categoryAdminForm').onsubmit=async event=>{
+ event.preventDefault();
+ const id=$('categoryAdminId').value,name=$('categoryAdminName').value.trim(),slug=promptSlug($('categoryAdminSlug').value);
+ if(!name||!slug){msg('categoryAdminMsg','Category name and a valid URL slug are required.');return}
+ const payload={name,slug,description:$('categoryAdminDescription').value.trim(),sort_order:Number.parseInt($('categoryAdminSort').value,10)||0,is_active:$('categoryAdminActive').checked};
+ const query=id?db.from('identitylock_prompt_categories').update(payload).eq('id',id):db.from('identitylock_prompt_categories').insert(payload);
+ const {data,error}=await query.select().single();
+ if(error){msg('categoryAdminMsg','Could not save category: '+error.message);return}
+ await audit(id?'update':'create','prompt_category',data.id,{name,slug,is_active:payload.is_active});
+ msg('categoryAdminMsg,'Category saved.');
+ await loadPromptCatalogue();editPromptCategory(data.id);
+};
+function newPromptAdmin(){
+ if(!promptCategories.length){msg('promptAdminMsg','Create a category first, then add prompts.');return}
+ selectedPromptAdmin=null;selectedPromptVersions=[];
+ $('promptAdminForm').classList.remove('hidden');$('promptAdminForm').reset();
+ $('promptEditorTitle').textContent='New prompt';$('promptAdminId').value='';
+ $('promptAdminSort').value=String((Math.max(-1,...promptRows.map(p=>Number(p.sort_order)||0))+1));
+ renderPromptCategoryOptions(promptCategories.find(c=>c.is_active)?.id||promptCategories[0].id);
+ $('archivePrompt').hidden=true;$('promptVersionHistory').replaceChildren();msg('promptAdminMsg','New prompt starts as a draft. Saving creates version 1.');
+}
+async function editPromptAdmin(id){
+ const prompt=promptRows.find(item=>item.id===id);if(!prompt)return;
+ selectedPromptAdmin=prompt;
+ const {data,error}=await db.from('identitylock_prompt_versions').select('id,version_number,prompt_text,change_note,created_at').eq('prompt_id',id).order('version_number',{ascending:false});
+ if(error){msg('promptAdminMsg','Could not load prompt versions: '+error.message);return}
+ selectedPromptVersions=data||[];
+ const current=selectedPromptVersions.find(version=>version.id===prompt.current_version_id)||selectedPromptVersions[0];
+ $('promptAdminForm').classList.remove('hidden');$('promptEditorTitle').textContent='Edit prompt · '+prompt.title;
+ $('promptAdminId').value=prompt.id;$('promptAdminTitle').value=prompt.title;$('promptAdminSlug').value=prompt.slug;
+ renderPromptCategoryOptions(prompt.category_id);
+ $('promptAdminDescription').value=prompt.short_description||'';
+ $('promptAdminTags').value=(prompt.tags||[]).join(', ');$('promptAdminSort').value=prompt.sort_order??0;
+ $('promptAdminText').value=current?.prompt_text||'';$('promptAdminVersionNote').value='';
+ $('archivePrompt').hidden=prompt.status==='archived';
+ $('promptVersionHistory').innerHTML='<h4>Saved versions</h4>'+(selectedPromptVersions.map(version=>'<div class="prompt-version-row"><b>Version '+version.version_number+'</b>'+(version.id===prompt.current_version_id?' · Current':'')+'<small>'+esc(version.change_note||'No change note')+' · '+new Date(version.created_at).toLocaleString()+'</small></div>').join('')||'<p class="muted">No saved versions yet.</p>');
+ renderPromptAdminList();msg('promptAdminMsg','Current saved version: '+(current?'v'+current.version_number:'none')+'. New saves create a new immutable version.');
+}
+$('newPrompt').onclick=newPromptAdmin;
+$('promptAdminTitle').oninput=()=>{if(!$('promptAdminId').value)$('promptAdminSlug').value=promptSlug($('promptAdminTitle').value)};
+$('promptAdminForm').onsubmit=event=>{event.preventDefault();savePromptAdmin('draft')};
+$('publishPrompt').onclick=()=>savePromptAdmin('published');
+async function savePromptAdmin(targetStatus){
+ const id=$('promptAdminId').value,title=$('promptAdminTitle').value.trim(),slug=promptSlug($('promptAdminSlug').value);
+ const categoryId=$('promptAdminCategory').value,promptText=$('promptAdminText').value.trim();
+ const category=promptCategories.find(item=>item.id===categoryId);
+ if(!title||!slug||!categoryId||!promptText){msg('promptAdminMsg','Title, slug, category and full prompt text are required.');return}
+ if(targetStatus==='published'&&!category?.is_active){msg('promptAdminMsg','Activate this category before publishing the prompt.');return}
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)){msg('promptAdminMsg','Use a lowercase URL slug with letters, numbers and hyphens.');return}
+ let promptId=id;
+ if(!promptId){
+  const {data,error}=await db.from('identitylock_prompts').insert({title,slug,category_id:categoryId,short_description:$('promptAdminDescription').value.trim(),tags:$('promptAdminTags').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,30),sort_order:Number.parseInt($('promptAdminSort').value,10)||0,status:'draft',current_version_id:null,created_by:user.id,updated_by:user.id}).select().single();
+  if(error){msg('promptAdminMsg','Could not create prompt: '+error.message);return}
+  promptId=data.id;$('promptAdminId').value=promptId;
+ }
+ const {data:versions,error:versionsError}=await db.from('identitylock_prompt_versions').select('version_number').eq('prompt_id',promptId).order('version_number',{ascending:false}).limit(1);
+ if(versionsError){msg('promptAdminMsg','Prompt exists, but version history could not load: '+versionsError.message);return}
+ const nextVersion=(versions?.[0]?.version_number||0)+1;
+ const {data:version,error:versionError}=await db.from('identitylock_prompt_versions').insert({prompt_id:promptId,version_number:nextVersion,prompt_text:promptText,change_note:$('promptAdminVersionNote').value.trim(),created_by:user.id}).select().single();
+ if(versionError){msg('promptAdminMsg','Prompt record is safe, but version '+nextVersion+' could not be saved: '+versionError.message);return}
+ const payload={title,slug,category_id:categoryId,short_description:$('promptAdminDescription').value.trim(),tags:$('promptAdminTags').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,30),sort_order:Number.parseInt($('promptAdminSort').value,10)||0,status:targetStatus,current_version_id:version.id,updated_by:user.id};
+ const {data,error}=await db.from('identitylock_prompts').update(payload).eq('id',promptId).select().single();
+ if(error){msg('promptAdminMsg','Version '+nextVersion+' was saved, but could not be made current. The previous version remains in place. Reload and retry: '+error.message);return}
+ selectedPromptAdmin=data;await audit(targetStatus==='published'?'publish':'save','prompt',promptId,{title,slug,status:targetStatus,version:nextVersion});
+ msg('promptAdminMsg',targetStatus==='published'?'Published version '+nextVersion+'. The public catalogue now lists this prompt.':'Saved version '+nextVersion+' as a draft. It is not visible to customers.');
+ await loadPromptCatalogue();await editPromptAdmin(promptId);
+}
+$('archivePrompt').onclick=async()=>{
+ const id=$('promptAdminId').value;if(!id)return;
+ if(!confirm('Archive this prompt? It will disappear from the public catalogue, but all versions and existing customer orders remain intact.'))return;
+ const {data,error}=await db.from('identitylock_prompts').update({status:'archived',updated_by:user.id}).eq('id',id).select().single();
+ if(error){msg('promptAdminMsg','Could not archive prompt: '+error.message);return}
+ await audit('archive','prompt',id,{title:data.title});msg('promptAdminMsg','Prompt archived. No versions or orders were deleted.');await loadPromptCatalogue();await editPromptAdmin(id);
+};
+$('catalogueReload').onclick=loadPromptCatalogue;
+$('promptAdminSearch').oninput=renderPromptAdminList;
