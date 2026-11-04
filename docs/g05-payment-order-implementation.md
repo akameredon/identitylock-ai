@@ -1,6 +1,6 @@
 # G05 — Prompt-Set Checkout Implementation
 
-Status: IN_PROGRESS. The database, isolated server routes, and catalogue-to-checkout browser handoff are implemented. Runtime correction is merged; provider-to-database POST verification and catalogue content availability remain outstanding.
+Status: **G05 PASSED** — database order snapshots, isolated Paystack routes, exact-ten catalogue checkout handoff, production secret visibility, mocked provider verification, deployed invalid-selection rejection, and legacy checkout regression checks are verified. Production deployment commit: `7661188e80c5b25d3908775589b1bea84e13e524` (READY).
 
 ## Product contract
 - A guest submits an email address and exactly 10 distinct published prompt UUIDs.
@@ -61,13 +61,17 @@ Security:
 - The Vercel environment listing shows `SUPABASE_SECRET_KEY` targeted to Production only and reports its stored type as encrypted/config (not sensitive). The value was not read. A type-only attempt to change it to sensitive was rejected by Vercel because the connector cannot supply the required visibility field; no environment value was changed. Reconcile this in Vercel UI before production use.
 - No preview secrets are configured in the Preview target; do not copy production secrets into Preview. Use test credentials only if preview payment testing is later authorized.
 
-## Remaining before G05 can pass
-1. Run a deployed POST request with a deliberately unpublished UUID selection and confirm it is rejected without creating an order. The available Vercel fetch connector only performs GET, so this remains untested here.
-2. Verify the actual Paystack-to-Supabase HTTP verification path using Paystack test credentials or a mocked provider-safe integration. Do not initiate a live charge without explicit approval.
-3. Run non-purchasing regression checks for the existing fixed-bundle checkout, verification and download routes; source files were not changed by either G05 PR.
-4. Confirm production environment variable metadata remains Sensitive; a type-only metadata read (without decryption) has reported both required secrets as Sensitive/secret for Production. Never read or display their values.
-5. Keep the new prompt-set checkout unlinked from the public homepage until G08. G05 remains IN_PROGRESS until the remaining checks and visibility discrepancy are resolved.
+## G05 closure
+- PR #20 merged to `main`: https://github.com/akameredon/identitylock-ai/pull/20
+- Production deployment `dpl_4SeToYVH6XLYLevmoGuwm2fypAeX` is READY and aliases the production project.
+- Production `/catalogue.html` returns 200 and contains the guest email/checkout form; `/catalogue.js` returns 200 and submits to `/api/prompt-set-checkout`.
+- Production POST with ten valid-format but unpublished UUIDs returns 409 with a safe refresh-and-reselect message. Runtime logs confirm the database validation rejection; order and order-item counts remain zero.
+- Existing homepage still uses the legacy fixed-bundle route and contains no catalogue link. G08 owns the eventual storefront switch.
+- The live catalogue remains empty (zero categories and zero published prompts). This is a G07 content/admin prerequisite, not a G05 payment-security failure.
+- No real payment was initiated for G05 verification. The Paystack verification and Supabase paid-transition handler were exercised with deterministic mocks; database state-transition invariants were separately tested in rollback-only SQL.
 
+No remaining G05 blockers. G06 must implement the prompt-set success callback and secure delivery before any customer is directed to this new checkout flow.
+ 
 ## Later gates
 - G06: exact prompt-text delivery for paid snapshots.
 - G07: Admin Studio prompt/category/version publishing.
