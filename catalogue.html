@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Choose any 10 IdentityLock AI prompts for ₦500.">
+  <title>Choose Your 10 Prompts — IdentityLock AI</title>
+  <link rel="stylesheet" href="/catalogue.css">
+</head>
+<body>
+  <header class="catalogue-header">
+    <a class="brand" href="/"><span class="mark">IL</span> IdentityLock <em>AI</em></a>
+    <a class="back-link" href="/">Back to home</a>
+  </header>
+  <main class="catalogue-main">
+    <section class="intro">
+      <p class="eyebrow">BUILD YOUR OWN PROMPT SET</p>
+      <h1>Choose any 10.<br><i>Make them yours.</i></h1>
+      <p class="intro-copy">Pick the ten transformations you actually need. Your complete set is ₦500 — no subscription and no account required.</p>
+      <div class="price-note"><strong>₦500</strong><span>for exactly 10 unique prompts</span></div>
+    </section>
+
+    <section class="catalogue" aria-labelledby="catalogueTitle">
+      <div class="catalogue-heading">
+        <div><p class="eyebrow">PROMPT LIBRARY</p><h2 id="catalogueTitle">Explore the collection</h2></div>
+        <label class="search-label">Search prompts<input id="searchInput" type="search" placeholder="Try “wedding” or “corporate”" autocomplete="off"></label>
+      </div>
+      <div id="categoryFilters" class="category-filters" aria-label="Filter by category"></div>
+      <div id="loadState" class="load-state" role="status" aria-live="polite">Loading published prompts…</div>
+      <div id="promptGrid" class="prompt-grid"></div>
+      <button id="retryButton" class="retry-button" type="button" hidden>Try again</button>
+    </section>
+  </main>
+
+  <section id="selectionReview" class="review-panel" aria-labelledby="reviewTitle" hidden>
+    <div class="review-inner">
+      <div class="review-top"><div><p class="eyebrow">YOUR CUSTOM SET</p><h2 id="reviewTitle">Your 10 selected prompts</h2></div><button id="closeReview" class="close-review" type="button" aria-label="Close selection review">×</button></div>
+      <ol id="reviewList" class="review-list"></ol>
+      <p class="preview-notice">Selection preview only. Payment and order creation are not active in this stage. No payment will be taken.</p>
+    </div>
+  </section>
+
+  <aside class="selection-bar" aria-label="Your prompt selection">
+    <div class="selection-progress">
+      <div class="count-line"><strong id="selectionCount">0 / 10 selected</strong><span id="remainingCount">10 remaining</span></div>
+      <div class="progress-track"><span id="progressFill"></span></div>
+    </div>
+    <div class="selection-actions"><span class="selection-price">₦500</span><button id="reviewButton" type="button" disabled>Select 10 prompts to continue</button></div>
+  </aside>
+
+  <footer class="catalogue-footer"><a class="brand" href="/"><span class="mark">IL</span> IdentityLock <em>AI</em></a><small>Change the look. Keep the person.</small></footer>
+  <script src="/vendor/supabase.min.js"></script>
+  <script src="/selection-core.js"></script>
+  <script src="/catalogue.js"></script>
+</body>
+</html>
