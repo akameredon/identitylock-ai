@@ -1,6 +1,6 @@
 # G03 — Prompt Catalogue Foundation
 
-Status: design baseline prepared; database migration and application implementation remain pending verification.
+Status: database foundation applied and verified; Admin Studio catalogue screens are intentionally scheduled for G07.
 
 ## Scope
 
