@@ -46,18 +46,19 @@ Security:
 - SQL negative tests rejected nine IDs and duplicate IDs.
 - Both order tables remained empty after negative tests.
 - RPC privilege checks: anon/authenticated denied; service_role allowed; all RPCs SECURITY INVOKER.
-- Preview logs exposed the startup error above. No order was created and no Paystack transaction was initiated.
+- Preview logs exposed the startup error above. The corrective preview build is READY; smoke requests now return 405 for GET on the POST-only checkout route and 400 for a malformed verification reference, with no function startup crash. Runtime logs show no further ESM startup error.
+- A rollback-only SQL integration test created ten temporary published prompts and versions, called the order-creation RPC, confirmed exactly ten snapshot rows, marked the order paid, repeated the same transaction successfully (idempotent), and rejected a different transaction ID and mismatched amount. The transaction was rolled back; both order tables still contain zero rows.
+- The nine Node validation tests pass against the corrected CommonJS helper.
 - Legacy route source files `api/checkout.js` and `api/verify.js` have not been modified by the G05 correction. PR #18 introduced separate route files; production legacy ZIP routes remain separate.
 - The Vercel environment listing shows `SUPABASE_SECRET_KEY` targeted to Production only and reports its stored type as encrypted/config (not sensitive). The value was not read. A type-only attempt to change it to sensitive was rejected by Vercel because the connector cannot supply the required visibility field; no environment value was changed. Reconcile this in Vercel UI before production use.
 - No preview secrets are configured in the Preview target; do not copy production secrets into Preview. Use test credentials only if preview payment testing is later authorized.
 
 ## Remaining before G05 can pass
-1. Verify the corrective preview deployment builds and both routes execute without startup errors.
-2. Exercise invalid/unpublished selection rejection without creating an order; verify order count remains zero.
-3. Verify Paystack mismatch and paid-transition idempotency with provider-safe test data or a mocked transaction; no live charge without explicit approval.
-4. Verify legacy fixed-bundle checkout, verification and download still work, without making a live purchase.
-5. Confirm the production environment variable visibility is Sensitive using Vercel's UI; its value must never be displayed.
-6. Keep the new prompt-set checkout unlinked from the public homepage until G08 and do not mark G05 PASSED until the remaining evidence is recorded.
+1. Run a deployed POST request with a deliberately unpublished UUID selection and confirm it is rejected without creating an order. The available Vercel fetch connector only performs GET, so this remains untested here.
+2. Verify the actual Paystack-to-Supabase HTTP verification path using Paystack test credentials or a mocked provider-safe integration. Do not initiate a live charge without explicit approval.
+3. Run non-purchasing regression checks for the existing fixed-bundle checkout, verification and download routes; source files were not changed by either G05 PR.
+4. Confirm the production environment variable visibility is Sensitive using Vercel's UI; its value must never be displayed. The current Vercel listing contradicts the earlier UI confirmation, and the connector cannot safely change the visibility without the secret value.
+5. Keep the new prompt-set checkout unlinked from the public homepage until G08. G05 remains IN_PROGRESS until the remaining checks and visibility discrepancy are resolved.
 
 ## Later gates
 - G06: exact prompt-text delivery for paid snapshots.
