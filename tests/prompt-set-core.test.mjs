@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePromptSetCheckout, validatePaystackPromptSetTransaction } from '../api/prompt-set-core.mjs';
+import core from '../api/prompt-set-core.cjs';
+const { validatePromptSetCheckout, validatePaystackPromptSetTransaction } = core;
 
 const ids = Array.from({ length: 10 }, (_, i) => `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`);
 const reference = 'ILP-1234567890abcdef1234567890abcdef';
