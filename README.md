@@ -1,37 +1,54 @@
 # IdentityLock AI storefront
 
-Static marketing site with Vercel serverless checkout, Paystack verification, and protected ZIP delivery.
+IdentityLock AI is a prompt catalogue and identity-preserving wardrobe workflow. The primary customer offer is **choose any 10 unique prompts for NGN ₦500**. The original fixed-bundle ZIP purchase remains available separately at `/legacy-bundle.html`.
 
 ## Current product configuration
 
-- Product: IdentityLock AI Complete Bundle
-- Permanent one-time price: **NGN ₦500**
-- Currency: **NGN**
-- Paystack amount sent to the API: **50,000 kobo**
-- Product metadata identifier: `identitylock-ai`
+- Primary product: choose any 10 prompts from the published catalogue.
+- Permanent one-time price: **NGN ₦500**.
+- Currency: **NGN**.
+- Server-fixed Paystack amount: **50,000 kobo**.
+- Prompt set metadata identifier: `identitylock-prompt-set`.
+- Initial catalogue: 16 published prompt choices across five categories.
+- No customer account, wallet, credit balance or subscription is required.
 
-Keep the amount, currency, and product identifier consistent across checkout initialization, verification, and protected download. ₦500 is the approved ongoing product price, not a temporary test price.
+## Customer flow
 
-## Configuration
+1. The homepage links to `/catalogue.html`.
+2. The customer selects exactly ten unique published prompt IDs and enters an email address.
+3. `POST /api/prompt-set-checkout` validates the exact-ten selection, snapshots the current prompt versions and initializes a server-fixed ₦500 Paystack checkout.
+4. Paystack returns the customer to `/prompt-success.html?reference=...`.
+5. `GET /api/prompt-set-verify` verifies the Paystack transaction and atomically marks the matching order paid.
+6. `GET /api/prompt-set-delivery` returns only the ten immutable prompt versions saved with that paid order.
+7. The delivery page offers per-prompt copy, copy-all and a plain-text download.
 
-1. Keep `PAYSTACK_SECRET_KEY` configured in the Vercel production environment. Use a Paystack live secret for live transactions; never expose it in browser code.
-2. Keep the product archive at `.private-assets/IdentityLock_AI_Complete_Bundle.zip`. This is a server-side directory and must never be moved into the public web root.
-3. Deploy through the connected Vercel project.
+The browser never controls the price. Full prompt text is not queried by the public catalogue and is not returned until a paid order is verified.
 
-## Payment and delivery flow
+## Legacy fixed bundle
 
-- `POST /api/checkout` initializes a one-time NGN ₦500 transaction.
-- `GET /api/verify` verifies transaction status, NGN currency, amount (50,000 kobo), and product metadata with Paystack.
-- `GET /api/download` independently repeats server-side verification before streaming the protected ZIP.
-- The Paystack secret and paid product archive must never be sent to the browser.
+- `/legacy-bundle.html` retains the original fixed-bundle checkout and ZIP download flow.
+- `POST /api/checkout`, `GET /api/verify`, and `GET /api/download` remain unchanged.
+- The legacy ZIP remains in `.private-assets/IdentityLock_AI_Complete_Bundle.zip` and must never be moved into the public web root.
 
-## Launch checks
+## Admin Studio
 
-- Confirm the correct Paystack live secret is configured for production.
-- Confirm the product archive exists at the exact private path and is readable by the serverless runtime.
-- Confirm successful payment verification and protected download; reject pending, failed, wrong-amount, wrong-currency, and wrong-product transactions.
-- Verify legal, refund, privacy, and support details for customers.
+- `/admin.html` includes Homepage Manager, Media Library, and Prompt Catalogue.
+- Admins can create categories, draft/publish prompts, append immutable versions, search and archive.
+- Prompt versions are never overwritten or deleted through the Admin Studio.
+- Public catalogue reads only listing metadata; full prompt text remains in the admin-only versions table.
 
-## Deployment
+## Configuration and security
 
-The project is a static site with Vercel serverless API routes. Use the Vercel project configuration already connected to this repository.
+1. Keep `PAYSTACK_SECRET_KEY` and `SUPABASE_SECRET_KEY` configured as Sensitive production environment variables. Never expose their values in browser code or logs.
+2. Keep the Paystack amount fixed at 50,000 kobo and currency NGN in the server-side checkout API.
+3. Delivery uses a SECURITY INVOKER database RPC executable only by `service_role`; anon/authenticated cannot execute it.
+4. Delivery reads only paid orders with exactly ten saved prompt-version snapshots.
+5. Delivery responses are private and non-cacheable.
+6. Preserve existing order history and prompt versions. Do not add delete/reset/drop operations.
+
+## Verification
+
+- Core, selection, checkout, verification and delivery Node tests are in `tests/`.
+- G05 and G06 implementation notes are in `docs/`.
+- Database integration checks use rollback-only transactions; no QA order or prompt rows are retained.
+- Keep the old fixed-bundle route available until the new storefront is fully verified.
