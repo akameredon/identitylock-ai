@@ -234,7 +234,7 @@ function renderPromptAdminList(){
  $('promptAdminCount').textContent=promptRows.length+' prompts';
  $('promptAdminList').innerHTML=filtered.map(prompt=>{
   const category=promptCategories.find(item=>item.id===prompt.category_id);
-  return '<button type="button" class="catalogue-prompt '+(selectedPromptAdmin?.id===prompt.id?'active':'')+'" data-prompt-edit="'+esc(prompt.id)+'"><span class="state">'+esc(prompt.status)+'</span><b>'+esc(prompt.title)+'</b><small>'+esc(category?.name||'Uncategorised')+' · v'+(prompt.current_version_number||'—')+'</small></button>';
+  return '<button type="button" class="catalogue-prompt '+(selectedPromptAdmin?.id===prompt.id?'active':'')+'" data-prompt-edit="'+esc(prompt.id)+'"><span class="state">'+esc(prompt.status)+'</span><b>'+esc(prompt.title)+'</b><small>'+esc(category?.name||'Uncategorised')+' · v'+(prompt.current_version_id?'saved':'missing')+'</small></button>';
  }).join('')||'<p class="muted">No prompts match this search. Create your first prompt.</p>';
  document.querySelectorAll('[data-prompt-edit]').forEach(button=>button.onclick=()=>editPromptAdmin(button.dataset.promptEdit));
 }
@@ -284,7 +284,7 @@ $('categoryAdminForm').onsubmit=async event=>{
 };
 function newPromptAdmin(){
  if(!promptCategories.length){msg('promptAdminMsg','Create a category first, then add prompts.');return}
- selectedPromptAdmin=null;selectedPromptVersions=[];
+ selectedPromptAdmin=null;selectedPromptVersions=[];renderPromptAdminList();
  $('promptAdminForm').classList.remove('hidden');$('promptAdminForm').reset();
  $('promptEditorTitle').textContent='New prompt';$('promptAdminId').value='';
  $('promptAdminSort').value=String((Math.max(-1,...promptRows.map(p=>Number(p.sort_order)||0))+1));
