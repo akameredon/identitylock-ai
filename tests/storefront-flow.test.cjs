@@ -8,6 +8,7 @@ const homepage = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const legacy = fs.readFileSync(path.join(root, 'legacy-bundle.html'), 'utf8');
 const catalogue = fs.readFileSync(path.join(root, 'catalogue.js'), 'utf8');
 const homeScript = fs.readFileSync(path.join(root, 'homepage.js'), 'utf8');
+const legacyScript = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
 
 test('primary homepage routes customers to the choose-any-ten catalogue', () => {
   assert.match(homepage, /href="\/catalogue\.html"/);
@@ -20,7 +21,7 @@ test('legacy fixed bundle remains separately available and retains its checkout 
   assert.match(legacy, /name="robots" content="noindex,nofollow"/);
   assert.match(legacy, /id="checkout"/);
   assert.match(legacy, /src="\/script\.js"/);
-  assert.match(legacy, /\/api\/checkout/);
+  assert.match(legacyScript, /\/api\/checkout/);
   assert.match(homepage, /\/legacy-bundle\.html/);
 });
 
