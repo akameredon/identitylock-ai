@@ -9,7 +9,6 @@ async function supabaseRpc(name, body, secret) {
     method: 'POST',
     headers: {
       apikey: secret,
-      Authorization: `Bearer ${secret}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
