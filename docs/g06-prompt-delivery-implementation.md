@@ -1,6 +1,6 @@
 # G06 — Paid prompt-set delivery
 
-Status: IN_PROGRESS. The delivery RPC, API endpoint, and customer callback page are implemented on `feat/g06-paid-prompt-delivery`. Production release is pending PR review/merge and smoke verification.
+Status: **G06 PASSED** — paid-only delivery RPC, delivery API, callback page, production deployment, and no-order security smoke tests are verified. Production deployment commit: `4c59ce65906811cbdfaf13401d07cea6ffdc1a54` (READY).
 
 ## Customer flow
 1. Paystack returns the customer to `/prompt-success.html?reference=...`.
@@ -29,6 +29,13 @@ Status: IN_PROGRESS. The delivery RPC, API endpoint, and customer callback page 
 - Follow-up SQL confirms the temporary QA category, prompts, versions, orders, and order items were not retained.
 - Node test suite: 26 passed, 0 failed, including five delivery endpoint tests, checkout/payment tests, and selection tests.
 - `node --check` passed for `api/prompt-set-delivery.js` and `prompt-success.js`.
+
+## G06 closure
+- PR #21 merged to `main`: https://github.com/akameredon/identitylock-ai/pull/21
+- Production deployment `dpl_6XVTAR8D9aAfLx64WAHZVEy87Hcm` is READY.
+- Production callback page, CSS, and JS each return 200.
+- Production delivery API rejects malformed references with 400 and returns 404 for a well-formed reference with no paid order. This exercised the production service-role RPC without creating or exposing any order.
+- Production homepage remains on the old fixed-bundle checkout and contains no link to the new catalogue.
 
 ## Release boundary
 - No customer payment was made during G06 verification.
