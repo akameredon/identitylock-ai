@@ -1,5 +1,5 @@
-import { randomUUID } from 'node:crypto';
-import { validatePromptSetCheckout } from './prompt-set-core.mjs';
+const { randomUUID } = require('node:crypto');
+const { validatePromptSetCheckout } = require('./prompt-set-core.cjs');
 
 const SUPABASE_URL = 'https://zcyxoucbglsyrqzqksjc.supabase.co';
 const AMOUNT_KOBO = 50000;

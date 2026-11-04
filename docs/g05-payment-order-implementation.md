@@ -1,6 +1,6 @@
 # G05 — Prompt-Set Checkout Implementation
 
-Status: IN_PROGRESS. Additive schema and isolated server routes are implemented on `feat/g05-prompt-set-payments`. The PR remains draft pending end-to-end provider and order validation.
+Status: IN_PROGRESS. The schema and isolated server routes are implemented. A post-merge preview smoke test exposed a Vercel CommonJS/ESM startup incompatibility; the corrective change is on `fix/g05-commonjs-runtime` and awaits preview verification.
 
 ## Product contract
 - A guest submits an email address and exactly 10 distinct published prompt UUIDs.
@@ -12,8 +12,8 @@ Status: IN_PROGRESS. Additive schema and isolated server routes are implemented 
 
 ## Database
 Applied migrations:
-- `20261104170000_identitylock_prompt_set_orders_v1.sql`
-- `20261104171000_identitylock_prompt_order_privilege_tightening_v1.sql`
+- `20261104170000_identitylock_prompt_set_orders_v1`
+- `20261104171000_identitylock_prompt_order_privilege_tightening_v1`
 
 Tables:
 - `identitylock_orders`: customer email, fixed amount/currency, unique Paystack reference and transaction ID, status and timestamps.
@@ -26,30 +26,40 @@ Security:
 - RPCs are SECURITY INVOKER, not SECURITY DEFINER; execute granted only to service_role.
 - Composite FK guarantees each snapshot version belongs to its prompt.
 - Payment transition requires ten snapshot rows and matching order/reference/amount/currency; repeat verification of the same transaction is idempotent.
+- Live verification confirms RLS enabled, browser roles have no SELECT, and service_role has no DELETE/TRUNCATE on either table.
+- Both order tables currently contain zero rows.
 
 ## Server routes
 - `POST /api/prompt-set-checkout`: validates exactly ten unique UUIDs and email, creates server-side snapshot, initializes Paystack at 50,000 NGN kobo.
 - `GET /api/prompt-set-verify?reference=...`: verifies transaction with Paystack and atomically marks the matching order paid.
-- Supabase secret key is sent only through the `apikey` header, never as a bearer JWT. It is read only from the Vercel server environment and was not retrieved or printed.
+- Supabase secret key is sent only through the `apikey` header, never as a bearer JWT.
 - These routes are separate from legacy ZIP checkout/verify/download routes.
 
-## Evidence so far
-- Node test suite: 9 tests passed, 0 failed.
-- SQL negative tests: nine IDs rejected; duplicate IDs rejected.
-- Order and order-item tables remain at zero rows after negative tests.
-- Both tables have RLS enabled; browser roles have no grants.
-- Service-role grants were narrowed after inspecting Supabase default privileges.
-- All three RPCs: SECURITY INVOKER; anon/authenticated execution denied; service_role execution allowed.
-- Vercel preview deployment for commit `001ee9bf8347eabde6a5581989bd21c89fb6e2fb` reported READY.
-- Vercel build compiled both new API routes; no build error.
-- The user confirmed `SUPABASE_SECRET_KEY` was created with Sensitive visibility in Production. Its value was not read.
+## Runtime defect and correction
+- The first merged implementation imported an `.mjs` helper from Vercel `.js` API handlers. The Vercel Node 26 runtime logged `ERR_REQUIRE_ESM` and returned FUNCTION_INVOCATION_FAILED for both routes.
+- Corrective branch: `fix/g05-commonjs-runtime`.
+- Correction adds a CommonJS `api/prompt-set-core.cjs` helper and loads it from the two handlers with `require()`. The unit test imports the CommonJS helper.
+- Do not mark this correction complete until a new preview deployment is READY and both routes return their expected method/validation responses.
+
+## Evidence
+- Original core unit suite: 9 passed, 0 failed before runtime deployment.
+- SQL negative tests rejected nine IDs and duplicate IDs.
+- Both order tables remained empty after negative tests.
+- RPC privilege checks: anon/authenticated denied; service_role allowed; all RPCs SECURITY INVOKER.
+- Preview logs exposed the startup error above. The corrective preview build is READY; smoke requests now return 405 for GET on the POST-only checkout route and 400 for a malformed verification reference, with no function startup crash. Runtime logs show no further ESM startup error.
+- A rollback-only SQL integration test created ten temporary published prompts and versions, called the order-creation RPC, confirmed exactly ten snapshot rows, marked the order paid, repeated the same transaction successfully (idempotent), and rejected a different transaction ID and mismatched amount. The transaction was rolled back; both order tables still contain zero rows.
+- The nine Node validation tests pass against the corrected CommonJS helper.
+- Legacy ZIP route smoke checks on the same preview: GET `/api/checkout` returned 405, invalid-reference `/api/verify` returned 400, and invalid-reference `/api/download` returned 400. These checks did not initialize Paystack or create a purchase.
+- Legacy route source files `api/checkout.js` and `api/verify.js` have not been modified by the G05 correction. PR #18 introduced separate route files; production legacy ZIP routes remain separate.
+- The Vercel environment listing shows `SUPABASE_SECRET_KEY` targeted to Production only and reports its stored type as encrypted/config (not sensitive). The value was not read. A type-only attempt to change it to sensitive was rejected by Vercel because the connector cannot supply the required visibility field; no environment value was changed. Reconcile this in Vercel UI before production use.
+- No preview secrets are configured in the Preview target; do not copy production secrets into Preview. Use test credentials only if preview payment testing is later authorized.
 
 ## Remaining before G05 can pass
-1. Verify the preview checkout route can reach the Supabase RPC using the Sensitive Production key, without revealing the key.
-2. Test invalid and unpublished selections through the deployed route; confirm no order is created.
-3. Verify Paystack transaction mismatch and idempotency behavior without initiating an unapproved live charge (mock/provider-safe test or controlled test environment).
-4. Recheck the existing fixed-bundle checkout and download routes remain unchanged.
-5. Complete a safe end-to-end preview test when published prompts exist.
+1. Run a deployed POST request with a deliberately unpublished UUID selection and confirm it is rejected without creating an order. The available Vercel fetch connector only performs GET, so this remains untested here.
+2. Verify the actual Paystack-to-Supabase HTTP verification path using Paystack test credentials or a mocked provider-safe integration. Do not initiate a live charge without explicit approval.
+3. Run non-purchasing regression checks for the existing fixed-bundle checkout, verification and download routes; source files were not changed by either G05 PR.
+4. Confirm the production environment variable visibility is Sensitive using Vercel's UI; its value must never be displayed. The current Vercel listing contradicts the earlier UI confirmation, and the connector cannot safely change the visibility without the secret value.
+5. Keep the new prompt-set checkout unlinked from the public homepage until G08. G05 remains IN_PROGRESS until the remaining checks and visibility discrepancy are resolved.
 
 ## Later gates
 - G06: exact prompt-text delivery for paid snapshots.

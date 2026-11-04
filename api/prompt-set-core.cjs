@@ -1,11 +1,11 @@
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function isUuid(value) {
+function isUuid(value) {
   return typeof value === 'string' && UUID_RE.test(value);
 }
 
-export function validatePromptSetCheckout(body) {
+function validatePromptSetCheckout(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return { ok: false, error: 'Invalid checkout request.' };
   }
@@ -37,7 +37,7 @@ function readMetadata(value) {
   return null;
 }
 
-export function validatePaystackPromptSetTransaction(transaction, expectedReference) {
+function validatePaystackPromptSetTransaction(transaction, expectedReference) {
   if (!transaction || typeof transaction !== 'object') return { ok: false, error: 'Missing transaction data.' };
   const metadata = readMetadata(transaction.metadata);
   const orderId = metadata?.order_id;
@@ -56,3 +56,5 @@ export function validatePaystackPromptSetTransaction(transaction, expectedRefere
     paidAt: transaction.paid_at || new Date().toISOString()
   };
 }
+
+module.exports = { isUuid, validatePromptSetCheckout, validatePaystackPromptSetTransaction };
