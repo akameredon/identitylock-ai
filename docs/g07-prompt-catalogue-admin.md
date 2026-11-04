@@ -1,6 +1,6 @@
 # G07 — Admin prompt catalogue
 
-Status: IN_PROGRESS. The Admin Studio Prompt Catalogue tab and append-only prompt editor are implemented on `feat/g07-prompt-catalogue-admin`; preview deployment is READY. Production merge and authorized-admin write verification remain.
+Status: **G07 PASSED** — Prompt Catalogue tab, versioned editor, production deployment, and authorized-admin RLS write simulation are verified. Production deployment commit: `8e553c787e3731c42fe08ccd2adac0e6fd79956e` (READY).
 
 ## Admin capabilities
 - Create and edit prompt categories, including active/inactive status and sort order.
@@ -25,7 +25,11 @@ Status: IN_PROGRESS. The Admin Studio Prompt Catalogue tab and append-only promp
 - Static safety suite: 4 passed, 0 failed. It checks the tab/editor, category/prompt/version loading, append-only version writes, absence of destructive prompt/category/version operations, and that the public catalogue selects metadata only.
 - Database policies and grants are grounded in the existing G03 migration. No new production data has been inserted or changed by this PR.
 
-## Remaining
-- Merge and confirm production deployment.
-- Confirm an authorized administrator can create a category, save a draft prompt, publish it, append a second version, and archive without deleting history.
-- Populate the initial prompt library with reviewed content before G08 storefront integration. Do not expose an empty catalogue to customers.
+## G07 closure
+- PR #22 merged to `main`: https://github.com/akameredon/identitylock-ai/pull/22
+- Production deployment `dpl_4Ym26MFjQGsbk1JHTEYFD17GuSUX` is READY.
+- Production Admin Studio HTML, JS and CSS return 200 and contain the new tab and editor controls.
+- A rollback-only SQL test ran as the `authenticated` role with an authorized admin identity: create category, create draft prompt, insert version 1, publish, append version 2, and archive. The test confirmed two versions remained; the transaction was rolled back.
+
+## Next gate
+- G08 must seed/review the initial public catalogue, verify the customer selection flow against real published content, and integrate the new storefront without breaking the legacy bundle flow. Do not expose an empty catalogue to customers.
