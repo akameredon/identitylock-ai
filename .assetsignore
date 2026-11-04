@@ -1,0 +1,17 @@
+api/**
+.private-assets/**
+private-assets/**
+supabase/**
+docs/**
+tests/**
+seu-preview/**
+cloudflare/**
+.env
+.env.*
+.env.example
+.nvmrc
+.gitignore
+.assetsignore
+wrangler.jsonc
+vercel.json
+README.md
