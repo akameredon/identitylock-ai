@@ -1,6 +1,6 @@
 # G05 — Payment and Immutable Order Snapshot
 
-Status: IN_PROGRESS — production implementation not yet started. This document records the implementation boundary and required server configuration.
+Status: IN_PROGRESS — additive order schema and isolated checkout/verification endpoints are being implemented. The user confirmed `SUPABASE_SECRET_KEY` was created with Sensitive visibility in Vercel Production. Do not read or print its value.
 
 ## Objective
 Allow a guest customer to choose exactly 10 unique published prompts and pay exactly ₦500 (50,000 kobo, NGN). The server, not the browser, decides which prompt versions are purchased and records an immutable order snapshot before Paystack checkout begins.
