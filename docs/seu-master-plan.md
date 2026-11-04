@@ -43,10 +43,11 @@ Pass conditions:
 ### SEU-G01 — Design system and visual architecture
 
 Deliverables:
-1. IdentityLock visual system and token definitions.
-2. Reusable component inventory and responsive page blueprints.
+1. IdentityLock visual system and token definitions, including restrained liquid-glass surface tokens and fallbacks.
+2. Reusable component inventory and responsive page blueprints, including bento discovery and a rule-based guided style finder.
 3. Homepage, category browsing, prompt detail/preview, selection, checkout handoff and post-purchase delivery flows.
-4. v0 usage plan that preserves GitHub PR workflow and does not force a framework migration.
+4. GenUI boundary and future runtime contract; do not label a static/rule-based finder as AI-generated GenUI.
+5. v0 usage plan that preserves GitHub PR workflow and does not force a framework migration.
 
 Pass conditions:
 - Design direction is approved before storefront implementation.
@@ -159,6 +160,69 @@ Reusable components:
 - SelectionDock and SelectionReview
 - Trust/HowItWorks/FAQ sections
 - SecureDeliveryPromptCard
+
+## SEU-G01 refined visual direction — premium intelligent visual commerce
+
+The design decision is to combine IdentityLock's existing warm editorial identity with a restrained, contemporary interaction layer. Trends are used only where they improve clarity, confidence, or speed to purchase.
+
+### Experience principles
+
+- **Premium editorial foundation:** retain Forest, Ink, Paper and Gold with Playfair Display + DM Sans. Avoid generic neon-purple AI styling.
+- **Selective liquid glass:** use translucent, blurred surfaces only for the sticky navigation, contextual helper surfaces and floating selection dock. Keep text-heavy content, prompt cards and forms on solid high-contrast surfaces. Provide a solid fallback when backdrop filters are unavailable.
+- **Bento discovery:** use a modular category overview to make the five collections scannable, then return to a consistent prompt-card grid for comparison and selection. Do not make the catalogue visually irregular at the expense of scanning.
+- **Visual-first product proof:** every published prompt should have its own approved original/transformed pair, a clear caption and a short explanation of what the prompt changes. A comparison control must have a keyboard/touch alternative and must not imply guaranteed identity preservation.
+- **Purposeful motion:** subtle state transitions, selected-state feedback and progress updates. Respect `prefers-reduced-motion`; no scroll-jacking, autoplay galleries or decorative animation that delays interaction.
+- **Mobile-first purchase controls:** keep the ten-item count and ₦500 price visible without obscuring content. On small screens the dock must account for safe-area insets, wrap cleanly and never cover form controls.
+- **Trust before persuasion:** explain exactly what is delivered, that an external image tool is needed, and that output varies. No fabricated reviews, ratings, scarcity, guarantees or misleading security badges.
+
+### Guided discovery / GenUI boundary
+
+The prototype includes a **rule-based guided style finder**: a visitor selects an occasion and desired direction, and the interface composes a relevant shortlist with next actions. This tests the interaction pattern without introducing an AI dependency or sending customer data to a model.
+
+This is **GenUI-ready, not yet a live model-generated interface**. A true GenUI runtime would require a separately approved model/tool contract, a constrained component schema, validated inputs, safe rendering, fallbacks, latency/cost limits and privacy review. It must never generate or expose private prompt bodies before verified payment. Do not add a chatbot merely to claim GenUI.
+
+### Page architecture
+
+1. **Homepage:** clear promise, ₦500 / any ten offer, one strong authentic hero comparison, three-step explanation and prominent browse action.
+2. **Category discovery:** five visual category tiles in a bento-inspired layout; category counts and descriptions remain legible.
+3. **Guided finder:** optional short interaction for visitors who are unsure where to start; it filters/recommends only from published public metadata.
+4. **Prompt catalogue:** consistent cards with prompt title, purpose, approved before/after pair, honest sample note and add/remove action.
+5. **Selection dock:** persistent 0/10–10/10 count, fixed ₦500 total, clear remaining count and accessible review action.
+6. **Selection review and checkout handoff:** plain-language confirmation of exactly ten selections; existing email and Paystack flow remain authoritative.
+7. **Paid delivery:** preserve the existing verified delivery experience and immutable prompt snapshots; visual refresh must not expose prompt text earlier.
+
+### Component and state contracts
+
+- `GlassHeader`: translucent surface, solid fallback, clear focus and readable contrast.
+- `BentoCategoryGrid`: responsive editorial tiles; semantic links and visible counts.
+- `GuidedStyleFinder`: occasion + style intent controls, recommendation explanation, clear reset and direct category/catalogue action. No account or personal-photo upload.
+- `BeforeAfterComparison`: approved pair only, labelled endpoints, touch/keyboard support, reduced-motion-safe.
+- `PromptCard`: stable card geometry, image ratio, category, short outcome description, sample disclaimer and selection state.
+- `SelectionDock`: count, price, progress, remaining count and review. Mobile safe-area and content clearance required.
+- `SelectionReview`: exact selected titles, remove/replace path, no payment until exactly ten.
+- `TrustDetails`: delivery explanation, external-tool requirement, realistic-results disclaimer and support/terms links.
+
+### Visual effects and implementation constraints
+
+- Glass is an accent, not the base material: target 1–2 prominent glass surfaces per viewport; use opaque backgrounds for body copy and cards.
+- Blur should be modest and layered over a sufficiently opaque tint; never rely on blur alone for contrast.
+- Use CSS tokens for surface opacity, blur, shadow, border and motion duration so effects can be tuned or disabled centrally.
+- Prefer CSS transitions and native controls over a new animation dependency.
+- No heavy 3D, WebGL, parallax, autoplay video or large client framework for decorative effect.
+- Keep the current vanilla HTML/CSS/JavaScript and Vercel API architecture unless profiling demonstrates a clear need to change it.
+- Image optimisation, responsive srcsets, explicit dimensions, lazy loading below the fold and low-bandwidth fallbacks are required before launch.
+
+### G01 acceptance checklist
+
+- [ ] Desktop and narrow-mobile preview reviewed at realistic widths.
+- [ ] Glass surfaces remain readable in light conditions and degrade to solid surfaces when unsupported.
+- [ ] Guided finder works with keyboard, screen-reader labels and no model/API dependency.
+- [ ] Category and prompt information hierarchy is understandable without animation.
+- [ ] Selection remains exactly-ten, displays ₦500 consistently and never obscures controls.
+- [ ] Reduced-motion and focus-visible states are defined.
+- [ ] Before/after placeholders are clearly marked as placeholders; no fabricated examples.
+- [ ] No production routes, payment endpoints, customer data or database schema are changed in G01.
+- [ ] Design decision and responsive behaviour are documented before G02 data-model work begins.
 
 ## Required customer experience
 
