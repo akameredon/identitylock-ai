@@ -7,3 +7,29 @@
 /* Media catalogue and project editor */
 .media-actions,.media-card-actions,.panel-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.media-actions .secondary,.media-card-actions .secondary{background:#edf0eb;color:#17211e}.media-card-info label{margin:4px 0;font-size:11px}.media-card-info input{padding:7px;font-size:12px;margin-top:3px}.media-card-actions button{font-size:11px;padding:7px}.project-layout{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(280px,1.2fr);gap:14px}.panel-title{justify-content:space-between}.panel-title h3{margin:0}.project-list{display:grid;gap:7px;margin-top:15px}.project-choice{display:block;text-align:left;background:#f7f7f2;color:#17211e;border:1px solid #e2e5dd}.project-choice.active{border-color:#c59a58;background:#f2eadc}.project-choice small{display:block;color:#65716c;margin-top:4px}.project-layout textarea,.pair-form textarea{display:block;width:100%;padding:10px;border:1px solid #dfe4dc;border-radius:8px;font:inherit;resize:vertical}.pair-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px}.pair-form label{margin:4px 0}.pair-form button{align-self:end}.pair-list{display:grid;gap:10px;margin-top:16px}.pair-row{display:grid;grid-template-columns:minmax(130px,220px) 1fr auto;gap:12px;align-items:center;border:1px solid #e2e5dd;border-radius:10px;padding:10px}.pair-thumbs{display:grid;grid-template-columns:1fr 18px 1fr;gap:5px;align-items:center}.pair-thumbs img{width:100%;height:90px;object-fit:cover;border-radius:6px}.pair-thumbs span{text-align:center;color:#c59a58}.pair-copy p{margin:5px 0;color:#65716c;font-size:13px}.pair-copy small{font-size:11px;color:#65716c;overflow-wrap:anywhere}.pair-order{display:grid;gap:5px}.pair-order button{padding:7px 10px}.pair-order button:disabled{opacity:.3;cursor:not-allowed}
 @media(max-width:850px){.project-layout{grid-template-columns:1fr}.pair-row{grid-template-columns:1fr auto}.pair-thumbs{max-width:260px}.pair-copy{grid-column:1/-1;grid-row:2}.pair-order{grid-column:2;grid-row:1}.pair-form{grid-template-columns:1fr}}
+
+/* Prompt catalogue administration */
+.catalogue-admin-grid{display:grid;grid-template-columns:minmax(190px,.75fr) minmax(220px,1fr) minmax(330px,1.6fr);gap:13px;align-items:start}
+.catalogue-admin-grid>.panel{min-width:0}
+.catalogue-category-list,.catalogue-prompt-list{display:grid;gap:7px;margin-top:12px}
+.catalogue-category,.catalogue-prompt{width:100%;display:block;text-align:left;background:#f7f7f2;color:#17211e;border:1px solid #e2e5dd;padding:11px;border-radius:8px}
+.catalogue-category.active,.catalogue-prompt.active{border-color:#c59a58;background:#f2eadc}
+.catalogue-category small,.catalogue-prompt small{display:block;color:#65716c;font-size:11px;margin-top:3px}
+.catalogue-category .state,.catalogue-prompt .state{float:right;font-size:10px;color:#65716c}
+.catalogue-admin-form{margin-top:14px;padding-top:14px;border-top:1px solid #e2e5dd}
+.catalogue-admin-form h4{margin:0 0 10px}
+.catalogue-admin-form textarea{display:block;width:100%;padding:10px;border:1px solid #dfe4dc;border-radius:8px;font:inherit;resize:vertical}
+.catalogue-admin-form label{margin:9px 0}
+.catalogue-form-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.catalogue-form-actions button{font-size:11px}
+.catalogue-form-actions .secondary{background:#edf0eb;color:#17211e}
+.inline-check{display:flex!important;align-items:center;gap:9px}
+.inline-check input{display:inline-block;width:auto;margin:0}
+.prompt-version-history{margin-top:17px;padding-top:13px;border-top:1px solid #e2e5dd}
+.prompt-version-history h4{margin:0 0 8px}
+.prompt-version-row{padding:8px 0;border-bottom:1px solid #edf0eb;font-size:11px}
+.prompt-version-row small{display:block;color:#65716c;margin-top:3px}
+#promptAdminSearch{margin:12px 0}
+#promptAdminMsg,#categoryAdminMsg{font-size:12px;font-weight:700;color:#1c4438}
+@media(max-width:1150px){.catalogue-admin-grid{grid-template-columns:minmax(190px,.7fr) minmax(220px,1fr)}.catalogue-admin-grid>.panel:last-of-type{grid-column:1/-1}}
+@media(max-width:800px){.catalogue-admin-grid{grid-template-columns:1fr}.catalogue-admin-grid>.panel:last-of-type{grid-column:auto}.catalogue-form-actions button{flex:1}}
