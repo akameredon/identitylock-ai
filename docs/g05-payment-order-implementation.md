@@ -49,7 +49,7 @@ Security:
 - Do not mark this correction complete until a new preview deployment is READY and both routes return their expected method/validation responses.
 
 ## Evidence
-- Original core unit suite: 9 passed, 0 failed before runtime deployment.
+- Core validation suite: 9 passed, 0 failed. Added mocked handler integration coverage for checkout initialization, invalid/unpublished selections, payment verification, amount mismatch and failed atomic transitions; combined selection/core/route suite: 21 passed, 0 failed.
 - SQL negative tests rejected nine IDs and duplicate IDs.
 - Both order tables remained empty after negative tests.
 - RPC privilege checks: anon/authenticated denied; service_role allowed; all RPCs SECURITY INVOKER.
