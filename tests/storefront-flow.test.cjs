@@ -13,7 +13,7 @@ const adminScript = fs.readFileSync(path.join(root, 'admin.js'), 'utf8');
 
 test('primary homepage routes customers to the choose-any-ten catalogue', () => {
   assert.match(homepage, /href="\/catalogue\.html"/);
-  assert.match(homepage, /Choose my 10 prompts/);
+  assert.match(homepage, /Choose your 10 prompts/);
   assert.doesNotMatch(homepage, /id="checkout"/);
   assert.doesNotMatch(homepage, /src="\/script\.js"/);
 });
