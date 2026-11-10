@@ -51,9 +51,7 @@ function responseRecorder() {
     end(body) { this.body = body; return this; }
   };
 }
-function request(method, body, query) {
-  return { method, body, query: query || {}, headers: { host: 'identitylock-ai.vercel.app' } };
-}
+function request(method, body, query) {\n  const params = new URLSearchParams(query || {});\n  return { method, body, query: query || {}, url: '/api/prompt-set-verify' + (params.toString() ? '?' + params.toString() : ''), headers: { host: 'identitylock-ai.vercel.app' } };\n}
 function restoreEnvironment() {
   global.fetch = originalFetch;
   if (originalPaystack === undefined) delete process.env.PAYSTACK_SECRET_KEY;
