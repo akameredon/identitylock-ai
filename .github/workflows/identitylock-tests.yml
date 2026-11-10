@@ -1,0 +1,26 @@
+name: IdentityLock tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - identitylock-studio-phase1
+
+permissions:
+  contents: read
+
+jobs:
+  node-tests:
+    name: Node test suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run existing and studio tests
+        run: node --test tests/*.test.cjs tests/*.test.mjs

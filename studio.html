@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173d32">
+<title>Create your look | IdentityLock AI</title>
+<meta name="description" content="Design your photo transformation with IdentityLock AI. Choose your outfit, setting, pose and finishing details.">
+<style>
+:root{--ink:#19231f;--muted:#66736b;--paper:#f7f7f1;--card:#fff;--green:#173d32;--green2:#245747;--gold:#c79c5b;--line:#e5e8df;--soft:#edf1e9;--danger:#a34235;--shadow:0 18px 50px #1b2b2010}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(5vw,20px);position:sticky;top:0;z-index:5}.brand{font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}.mark{display:grid;place-items:center;width:36px;height:36px;background:var(--green);color:white;border-radius:10px;font-family:Georgia,serif}.brand em{font-style:normal;color:var(--gold)}.toplinks{display:flex;align-items:center;gap:20px;font-size:13px;color:var(--muted)}.toplinks a:last-child{color:var(--green);font-weight:700}.page{max-width:1160px;margin:auto;padding:38px 22px 90px}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:8px 0 28px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#96784c;text-transform:uppercase}.intro h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-1.5px;font-size:clamp(36px,5vw,58px);line-height:1.05;margin:12px 0}.intro p{max-width:620px;color:var(--muted);line-height:1.7;margin:0;font-size:14px}.trial{background:#eaf0e8;border:1px solid #dce6d9;border-radius:14px;padding:14px 17px;min-width:220px}.trial strong{display:block;color:var(--green);font-size:17px}.trial span{display:block;color:#68766d;font-size:11px;line-height:1.5;margin-top:4px}.stepbar{display:flex;align-items:center;gap:9px;margin:24px 0 18px;color:#718078;font-size:11px;font-weight:700}.step{display:flex;align-items:center;gap:8px}.step b{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#e4e9e1;color:#53645a}.step.active{color:var(--green)}.step.active b{background:var(--green);color:white}.step-line{height:1px;width:42px;background:#dce1d8}.workspace{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr);gap:20px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:22px 24px 16px;border-bottom:1px solid var(--line)}.panel-head h2{font-family:Georgia,serif;font-weight:500;font-size:24px;margin:0 0 6px}.panel-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.panel-body{padding:22px 24px}.upload{border:1.5px dashed #cbd5c9;border-radius:14px;background:#fafbf8;min-height:180px;display:grid;place-items:center;text-align:center;padding:18px;position:relative;overflow:hidden}.upload.has-image{display:block;padding:0;min-height:250px}.upload input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.upload label{cursor:pointer;display:grid;justify-items:center;gap:7px}.upload-icon{width:45px;height:45px;border-radius:13px;background:#eaf0e8;color:var(--green);display:grid;place-items:center;font-size:22px}.upload strong{font-size:13px}.upload small{color:var(--muted);font-size:11px}.upload img{width:100%;max-height:410px;object-fit:contain;display:block;background:#f0f1ed}.upload-tools{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;font-size:11px;color:var(--muted)}.text-button{border:0;background:none;color:var(--danger);font-weight:700;padding:5px}.section{margin-top:24px}.section-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:12px}.section-title h3{font-size:13px;margin:0}.section-title span{font-size:10px;color:var(--muted)}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.choice{border:1px solid var(--line);background:white;border-radius:11px;padding:12px;text-align:left;min-height:73px;transition:.15s}.choice strong{display:block;font-size:12px}.choice small{display:block;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.4}.choice.selected{border-color:var(--green);background:#edf3ee;box-shadow:inset 0 0 0 1px var(--green)}.choice:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid #d6b67d;outline-offset:2px}.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field label{display:block;font-size:11px;font-weight:750;margin-bottom:7px}.field select,.field textarea{width:100%;border:1px solid #dfe4dc;background:#fff;border-radius:10px;padding:12px;color:var(--ink);font-size:12px}.field textarea{resize:vertical;min-height:108px;line-height:1.6}.hint{font-size:10px;color:var(--muted);line-height:1.5;margin:7px 0 0}.side{position:sticky;top:94px}.summary{padding:20px 21px}.summary h2{font-family:Georgia,serif;font-weight:500;font-size:22px;margin:0 0 5px}.summary>p{font-size:11px;color:var(--muted);line-height:1.6;margin:0 0 16px}.mini-preview{height:170px;border-radius:12px;background:linear-gradient(145deg,#e9eee6,#d7dfd4 50%,#b7c5b7);display:grid;place-items:center;overflow:hidden;color:#65766a;font-size:11px;text-align:center}.mini-preview img{width:100%;height:100%;object-fit:cover}.summary-list{margin:15px 0 0;padding:0;list-style:none}.summary-list li{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #edf0e9;padding:9px 0;font-size:11px}.summary-list span{color:var(--muted)}.summary-list strong{text-align:right;font-weight:650;max-width:60%}.cta{width:100%;border:0;background:var(--green);color:white;padding:15px;border-radius:10px;font-weight:750;font-size:12px;margin-top:17px}.cta:disabled{opacity:.5;cursor:not-allowed}.notice{margin-top:12px;border-radius:10px;padding:12px;background:#f7f4ed;color:#746447;font-size:10px;line-height:1.6}.privacy{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:10px;color:var(--muted);line-height:1.6}.privacy b{color:var(--green)}.result{display:none;margin-top:18px;border:1px solid #d9e4d8;border-radius:12px;padding:15px;background:#f5f8f3}.result.visible{display:block}.result h3{font-size:13px;margin:0 0 7px;color:var(--green)}.result p{font-size:11px;line-height:1.65;color:#5f6d63;margin:0}.footer-note{text-align:center;color:#8a948c;font-size:10px;margin:28px 0 0}.back-link{font-size:12px;color:var(--green);font-weight:700}.error{color:var(--danger);font-size:11px;margin-top:8px;min-height:15px}
+@media(max-width:850px){.intro{align-items:flex-start;flex-direction:column}.trial{width:100%}.workspace{grid-template-columns:1fr}.side{position:static}.summary{display:grid;grid-template-columns:1fr 1fr;gap:15px}.summary h2,.summary>p,.summary-list,.cta,.notice,.privacy,.result{grid-column:1/-1}.mini-preview{grid-column:1/-1;max-height:220px}}
+@media(max-width:560px){.topbar{height:62px}.toplinks a:first-child{display:none}.page{padding:25px 14px 60px}.intro h1{font-size:39px}.panel-head{padding:19px 17px 14px}.panel-body{padding:18px 16px}.choices{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid{grid-template-columns:1fr}.stepbar{gap:5px;font-size:9px}.step-line{width:15px}.summary{display:block}.mini-preview{margin-top:14px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="mark">IL</span> IdentityLock <em>AI</em></a>
+  <nav class="toplinks"><a href="#builder">Create your look</a><a href="/catalogue.html">Existing prompt collection ↗</a></nav>
+</header>
+<main class="page" id="builder">
+  <div class="intro">
+    <div><div class="eyebrow">Your photo. Your choices. Your style.</div><h1>Imagine it. We'll shape the instructions.</h1><p>Choose the details you want, add your own description, and IdentityLock will prepare a clear image-editing brief. Your face and identity are protected by default while we change the look you selected.</p></div>
+    <aside class="trial"><strong>1 welcome image planned — FREE</strong><span>Our proposed launch offer. Free credits will activate after secure sign-up, payment and image generation are connected.</span></aside>
+  </div>
+  <div class="stepbar" aria-label="Creation steps"><span class="step active"><b>1</b> Your photo</span><i class="step-line"></i><span class="step active"><b>2</b> Your style</span><i class="step-line"></i><span class="step"><b>3</b> Preview & create</span></div>
+  <div class="workspace">
+    <section class="panel">
+      <div class="panel-head"><h2>Build your transformation</h2><p>Start with a clear photo. Then select as many details as you need.</p></div>
+      <div class="panel-body">
+        <div class="upload" id="uploadBox">
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+          <label for="photo"><span class="upload-icon">＋</span><strong>Choose a photo from your device</strong><small>JPEG, PNG or WebP · Maximum 15 MB · Preview stays on this device in this prototype</small></label>
+        </div>
+        <div class="upload-tools" id="uploadTools" hidden><span id="fileName">No photo selected</span><button type="button" class="text-button" id="removePhoto">Remove photo</button></div>
+        <p class="error" id="photoError" role="alert"></p>
+
+        <div class="section">
+          <div class="section-title"><h3>1. What is the occasion?</h3><span>Choose one starting point</span></div>
+          <div class="choices" id="occasionChoices">
+            <button type="button" class="choice selected" data-value="Traditional wedding"><strong>Traditional wedding</strong><small>Regal cultural celebration</small></button>
+            <button type="button" class="choice" data-value="Corporate portrait"><strong>Corporate portrait</strong><small>Professional and confident</small></button>
+            <button type="button" class="choice" data-value="White wedding"><strong>White wedding</strong><small>Elegant wedding styling</small></button>
+            <button type="button" class="choice" data-value="Birthday"><strong>Birthday</strong><small>Personal celebration</small></button>
+            <button type="button" class="choice" data-value="Graduation"><strong>Graduation</strong><small>Achievement portrait</small></button>
+            <button type="button" class="choice" data-value="Casual fashion"><strong>Casual fashion</strong><small>Everyday style</small></button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><h3>2. Choose your look</h3><span>Customise the details</span></div>
+          <div class="field-grid">
+            <div class="field"><label for="outfit">Outfit</label><select id="outfit"><option>Igbo traditional attire</option><option>Senator outfit</option><option>Traditional wrapper and blouse</option><option>Elegant gown</option><option>Corporate suit</option><option>Smart business dress</option><option>Luxury casual wear</option><option>Custom outfit described below</option></select></div>
+            <div class="field"><label for="colour">Main colour</label><select id="colour"><option>Royal blue</option><option>Wine / burgundy</option><option>Emerald green</option><option>Black</option><option>White</option><option>Gold</option><option>Ivory / cream</option><option>Any colour that suits the design</option><option>Custom colour in my description</option></select></div>
+            <div class="field"><label for="accessories">Accessories</label><select id="accessories"><option>Gold accessories</option><option>Coral beads</option><option>Traditional cap and beads</option><option>Minimal accessories</option><option>Luxury watch</option><option>No additional accessories</option><option>As described in my request</option></select></div>
+            <div class="field"><label for="background">Background / setting</label><select id="background"><option>Luxury traditional wedding venue</option><option>Elegant photo studio</option><option>Modern corporate office</option><option>Luxury hotel interior</option><option>Outdoor garden</option><option>Clean plain background</option><option>Church or celebration venue</option><option>Custom setting in my description</option></select></div>
+            <div class="field"><label for="pose">Pose</label><select id="pose"><option>Standing confidently</option><option>Seated elegantly</option><option>Natural relaxed pose</option><option>Walking editorial pose</option><option>Close-up head and shoulders</option><option>Keep the original pose</option></select></div>
+            <div class="field"><label for="framing">Photo framing</label><select id="framing"><option>Full body</option><option>Three-quarter portrait</option><option>Waist-up portrait</option><option>Head and shoulders</option><option>Match the original framing</option></select></div>
+            <div class="field"><label for="lighting">Lighting and finish</label><select id="lighting"><option>Soft luxury studio lighting</option><option>Natural daylight</option><option>Warm cinematic lighting</option><option>Bright editorial photography</option><option>Classic formal portrait lighting</option></select></div>
+            <div class="field"><label for="style">Photography style</label><select id="style"><option>Photorealistic professional photography</option><option>Luxury editorial fashion</option><option>Timeless portrait photography</option><option>Modern magazine cover style</option><option>Natural candid photography</option></select></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><h3>3. Tell us anything else</h3><span>Optional</span></div>
+          <div class="field"><label for="custom">Describe exactly what you have in mind</label><textarea id="custom" maxlength="1200" placeholder="Example: Dress me in a royal blue Igbo isi agu outfit with subtle gold embroidery. Add a matching red cap, and place me in a beautiful luxury traditional wedding venue. Keep my face, hairstyle, skin tone and body exactly as in my original photo."></textarea><p class="hint">You can write naturally. You do not need to know how to write an AI prompt. We'll combine your description with your selections.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel side">
+      <div class="summary">
+        <div><div class="eyebrow">YOUR CREATION</div><h2>Review your choices</h2><p>As you customise, your request summary updates here.</p></div>
+        <div class="mini-preview" id="miniPreview">Your selected photo will appear here</div>
+        <ul class="summary-list" id="summaryList">
+          <li><span>Occasion</span><strong id="sumOccasion">Traditional wedding</strong></li>
+          <li><span>Outfit</span><strong id="sumOutfit">Igbo traditional attire</strong></li>
+          <li><span>Colour</span><strong id="sumColour">Royal blue</strong></li>
+          <li><span>Background</span><strong id="sumBackground">Luxury traditional wedding venue</strong></li>
+          <li><span>Pose</span><strong id="sumPose">Standing confidently</strong></li>
+        </ul>
+        <button type="button" class="cta" id="previewRequest">Prepare my image brief</button>
+        <div class="notice">Prototype only: this page currently prepares and previews your request. It does not upload your photograph, charge you, use a free credit or generate an image yet.</div>
+        <div class="privacy"><span>🔒</span><span><b>Identity preservation is the default.</b> Our intended editing rules keep your face, skin tone, hairstyle and body appearance unchanged while applying your selected styling. AI results still require quality checks.</span></div>
+        <div class="result" id="result" aria-live="polite"><h3>Your image brief is ready</h3><p id="resultText"></p></div>
+      </div>
+    </aside>
+  </div>
+  <p class="footer-note">IdentityLock AI · Change the look. Keep the person. · Design preview, not yet connected to live generation.</p>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const state = { occasion: 'Traditional wedding', imageUrl: null };
+  const fields = ['outfit','colour','accessories','background','pose','framing','lighting','style'];
+  const photo = $('photo');
+  const uploadBox = $('uploadBox');
+  const uploadTools = $('uploadTools');
+  const preview = $('miniPreview');
+  const error = $('photoError');
+
+  document.querySelectorAll('#occasionChoices .choice').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('#occasionChoices .choice').forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+      state.occasion = button.dataset.value;
+      updateSummary();
+    });
+  });
+
+  photo.addEventListener('change', () => {
+    error.textContent = '';
+    const file = photo.files && photo.files[0];
+    if (!file) return;
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(file.type)) {
+      photo.value = '';
+      error.textContent = 'Please choose a JPEG, PNG or WebP image.';
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      photo.value = '';
+      error.textContent = 'This image is larger than 15 MB. Please choose a smaller file.';
+      return;
+    }
+    if (state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+    state.imageUrl = URL.createObjectURL(file);
+    uploadBox.classList.add('has-image');
+    uploadBox.innerHTML = '<img id="localPhotoPreview" alt="Your selected photo preview">';
+    $('localPhotoPreview').src = state.imageUrl;
+    uploadTools.hidden = false;
+    $('fileName').textContent = file.name;
+    preview.innerHTML = '';
+    const thumb = document.createElement('img');
+    thumb.src = state.imageUrl;
+    thumb.alt = 'Selected photo';
+    preview.appendChild(thumb);
+  });
+
+  $('removePhoto').addEventListener('click', () => {
+    if (state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+    state.imageUrl = null;
+    photo.value = '';
+    uploadBox.classList.remove('has-image');
+    uploadBox.innerHTML = '<input id="photo" type="file" accept="image/jpeg,image/png,image/webp"><label for="photo"><span class="upload-icon">＋</span><strong>Choose a photo from your device</strong><small>JPEG, PNG or WebP · Maximum 15 MB · Preview stays on this device in this prototype</small></label>';
+    uploadTools.hidden = true;
+    preview.textContent = 'Your selected photo will appear here';
+    // Rebind the replacement input without using network or persistent storage.
+    $('photo').addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 15*1024*1024) {
+        error.textContent = 'Choose a JPEG, PNG or WebP image no larger than 15 MB.';
+        event.target.value = '';
+        return;
+      }
+      state.imageUrl = URL.createObjectURL(file);
+      uploadBox.classList.add('has-image');
+      uploadBox.innerHTML = '<img id="localPhotoPreview" alt="Your selected photo preview">';
+      $('localPhotoPreview').src = state.imageUrl;
+      uploadTools.hidden = false;
+      $('fileName').textContent = file.name;
+      preview.innerHTML = '';
+      const img = document.createElement('img'); img.src = state.imageUrl; img.alt = 'Selected photo'; preview.appendChild(img);
+    });
+  });
+
+  fields.forEach((id) => $(id).addEventListener('change', updateSummary));
+  $('custom').addEventListener('input', () => { $('result').classList.remove('visible'); });
+
+  function value(id) { return $(id).value; }
+  function updateSummary() {
+    $('sumOccasion').textContent = state.occasion;
+    $('sumOutfit').textContent = value('outfit');
+    $('sumColour').textContent = value('colour');
+    $('sumBackground').textContent = value('background');
+    $('sumPose').textContent = value('pose');
+    $('result').classList.remove('visible');
+  }
+
+  $('previewRequest').addEventListener('click', () => {
+    const lines = [
+      'Occasion: ' + state.occasion,
+      'Outfit: ' + value('outfit') + ' in ' + value('colour'),
+      'Accessories: ' + value('accessories'),
+      'Setting: ' + value('background'),
+      'Pose and framing: ' + value('pose') + '; ' + value('framing'),
+      'Lighting: ' + value('lighting'),
+      'Photography: ' + value('style'),
+      'Identity instruction: Preserve the original person's facial identity, skin tone, hairstyle and body appearance. Change only the requested styling and scene details.',
+      $('custom').value.trim() ? 'Customer's additional request: ' + $('custom').value.trim() : ''
+    ].filter(Boolean);
+    $('resultText').textContent = lines.join(' · ');
+    $('result').classList.add('visible');
+    $('result').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+  updateSummary();
+})();
+</script>
+</body>
+</html>

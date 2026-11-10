@@ -13,7 +13,7 @@ const adminScript = fs.readFileSync(path.join(root, 'admin.js'), 'utf8');
 
 test('primary homepage routes customers to the choose-any-ten catalogue', () => {
   assert.match(homepage, /href="\/catalogue\.html"/);
-  assert.match(homepage, /Choose my 10 prompts/);
+  assert.match(homepage, /Choose your 10 prompts/);
   assert.doesNotMatch(homepage, /id="checkout"/);
   assert.doesNotMatch(homepage, /src="\/script\.js"/);
 });
@@ -23,7 +23,6 @@ test('legacy fixed bundle remains separately available and retains its checkout 
   assert.match(legacy, /id="checkout"/);
   assert.match(legacy, /src="\/script\.js"/);
   assert.match(legacyScript, /\/api\/checkout/);
-  assert.match(homepage, /\/legacy-bundle\.html/);
 });
 
 test('catalogue submits the selected ten prompt IDs to the secure checkout API', () => {

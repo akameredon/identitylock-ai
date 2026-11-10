@@ -41,7 +41,7 @@ function responseRecorder() {
     json(body) { this.body = body; return this; }
   };
 }
-function req(method, ref = reference) { return { method, query: { reference: ref } }; }
+function req(method, ref = reference) { return { method, query: { reference: ref }, url: '/api/prompt-set-delivery?reference=' + encodeURIComponent(ref) }; }
 
 test.beforeEach(() => { process.env.SUPABASE_SECRET_KEY = 'supabase_test_secret'; });
 test.afterEach(() => {
