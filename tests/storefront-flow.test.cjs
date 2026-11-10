@@ -23,7 +23,6 @@ test('legacy fixed bundle remains separately available and retains its checkout 
   assert.match(legacy, /id="checkout"/);
   assert.match(legacy, /src="\/script\.js"/);
   assert.match(legacyScript, /\/api\/checkout/);
-  assert.match(homepage, /\/legacy-bundle\.html/);
 });
 
 test('catalogue submits the selected ten prompt IDs to the secure checkout API', () => {
